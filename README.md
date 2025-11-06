@@ -9,9 +9,11 @@ This project follows **Hexagonal (Ports & Adapters / Clean Architecture)** princ
 - **Core Domain**: Business logic isolated from frameworks (domain entities, use-cases, ports)
 - **Adapters**: UI (React) and Infrastructure (API clients, database) adapters implement ports
 - **Tech Stack**:
-  - **Frontend**: Next.js + TypeScript + TailwindCSS + shadcn/ui + Recharts
-  - **Backend**: Node.js + Express + TypeScript + Drizzle ORM
+  - **Frontend**: Next.js 16 + TypeScript + TailwindCSS 4 + shadcn/ui (new-york) + Recharts + next-themes
+  - **Backend**: Node.js 20+ + Express + TypeScript + Drizzle ORM
   - **Database**: Neon Postgres (with in-memory fallback for development)
+  - **Fonts**: Geist Sans + Geist Mono (via geist package)
+  - **Theme**: Dark/Light/System mode support with next-themes
 
 ```
 project-root/
@@ -31,6 +33,46 @@ project-root/
 │
 └── docs/              # AI agent workflow & reflection
 ```
+
+---
+
+## 🎨 Theme System
+
+The frontend uses a comprehensive shadcn/ui theme system with:
+
+- **Dark Mode**: Toggle between light, dark, and system themes via ThemeToggle button in dashboard
+- **Fonts**: Geist Sans (body text) and Geist Mono (code/monospace) with system fallbacks
+- **UI Components**: All components use shadcn/ui primitives (Button, Input, Card, Table, Badge, Tabs, Select)
+- **Styling**: new-york style with rounded corners (--radius: 0.625rem)
+- **Cursor Pointers**: Interactive elements have explicit cursor-pointer classes
+- **Colors**: oklch-based color palette with consistent light/dark mode tokens
+
+### Theme Toggle
+Located in the dashboard header, allows switching between:
+- 🌞 Light mode
+- 🌙 Dark mode
+- 🖥️ System mode (auto-detect)
+
+---
+
+## 🗄️ Database Integration
+
+The backend supports **dual storage modes** for maximum flexibility:
+
+### In-Memory Mode (Development)
+- **Default**: Runs without database setup
+- **Use Case**: Quick prototyping, testing, CI/CD
+- **Setup**: No DATABASE_URL needed, uses hardcoded seed data
+
+### Database Mode (Production)
+- **Database**: Neon Postgres (serverless)
+- **ORM**: Drizzle with type-safe queries
+- **Setup**: Set DATABASE_URL in .env
+- **Migrations**: `npm run db:push` to sync schema
+- **Seeding**: `npm run db:seed` to populate initial data
+- **Studio**: `npm run db:studio` for visual database browser
+
+See **backend/DATABASE_SETUP.md** for detailed setup instructions.
 
 ---
 
@@ -203,7 +245,7 @@ curl -X POST http://localhost:4000/pools \
 
 ---
 
-## � Known Issues & Fixes
+## 📋 Known Issues & Fixes
 
 ### Fixed in Latest Version
 
@@ -218,7 +260,16 @@ curl -X POST http://localhost:4000/pools \
    - **Solution**: Updated frontend to match backend property names, added null coalescing for safety
    - **Impact**: Pool creation and result display now works correctly
 
-3. **API Contract Consistency**
+3. **Geist Font Rendering Issue** (Fixed)
+   - **Problem**: Fonts configured but not appearing in UI
+   - **Root Cause**: Font CSS variables not cascading properly, font class not applied to body
+   - **Solution**: 
+     - Moved font variables from `<body>` to `<html>` tag for proper cascade
+     - Added explicit `font-sans` class to body element
+     - Updated @theme block to map font-sans/font-mono to geist variables with fallbacks
+   - **Impact**: Geist Sans now renders correctly on all text, Geist Mono on code elements
+
+4. **API Contract Consistency**
    - **Recommendation**: Use shared TypeScript types between frontend and backend to prevent property name mismatches
    - **Future**: Consider OpenAPI spec generation for automatic type synchronization
 

@@ -263,6 +263,241 @@ These bugs could have been prevented by:
 
 ---
 
+## Database Integration Learnings
+
+### 1. **Flexible Architecture: The Best of Both Worlds**
+
+One of the most valuable architectural decisions was implementing **dual storage modes**:
+- **In-Memory Mode**: Hardcoded seed data, no database required
+- **Database Mode**: Neon Postgres + Drizzle ORM with type-safe queries
+
+**Implementation**:
+```typescript
+// backend/src/index.ts
+const dbRoutes = process.env.DATABASE_URL 
+  ? require("./routes/routes-db").default 
+  : null;
+
+if (dbRoutes) {
+  console.log("[INFO] Using DATABASE routes");
+  app.use("/", dbRoutes);
+} else {
+  console.log("[INFO] Using IN-MEMORY routes");
+  app.use("/", inMemoryRoutes);
+}
+```
+
+**Benefits**:
+- ✅ Rapid prototyping without database setup
+- ✅ Easy onboarding for new developers (just run `npm run dev`)
+- ✅ CI/CD simplicity (no database credentials needed for tests)
+- ✅ Production-ready when DATABASE_URL is configured
+
+**Takeaway**: Don't force early technology decisions. Build flexibility into your architecture so you can choose the right tool for each environment.
+
+### 2. **Drizzle ORM: Type Safety Without Boilerplate**
+
+Compared to Prisma (which I've used before), Drizzle ORM was surprisingly lightweight:
+
+**Schema Definition**:
+```typescript
+export const routes = pgTable("routes", {
+  routeId: text("route_id").primaryKey(),
+  shipId: text("ship_id").references(() => ships.shipId),
+  year: integer("year").notNull(),
+  // ... TypeScript infers the types automatically
+});
+```
+
+**Query Building**:
+```typescript
+// Type-safe, no code generation step needed
+const results = await db.select()
+  .from(routes)
+  .where(and(
+    eq(routes.shipId, shipId),
+    eq(routes.year, year)
+  ));
+```
+
+**Pros**:
+- No build step or code generation (unlike Prisma)
+- SQL-like syntax that's familiar to developers
+- Full TypeScript inference without extra tooling
+- Smaller bundle size
+
+**Cons**:
+- Less mature ecosystem than Prisma
+- Manual migration management (though `drizzle-kit` helps)
+- No built-in visual schema editor (but Drizzle Studio covers this)
+
+**Takeaway**: For projects where you want more SQL control and less "magic," Drizzle is an excellent choice. For rapid prototyping with lots of relations, Prisma might still be faster.
+
+### 3. **Seed Scripts as First-Class Citizens**
+
+Instead of manually inserting test data, I created a proper seed script:
+
+```typescript
+// backend/src/db/seed.ts
+await db.insert(ships).values([
+  { shipId: "S001", vesselType: "Bulk Carrier", ... },
+  { shipId: "S002", vesselType: "Container Ship", ... },
+]);
+
+await db.insert(routes).values([
+  { routeId: "R001", shipId: "S001", year: 2024, ... },
+]);
+```
+
+**Benefits**:
+- Reproducible database state for development
+- Easy to reset database and start fresh
+- Can version control the seed data
+- Great for onboarding new team members
+
+**npm Scripts Added**:
+```json
+{
+  "db:push": "drizzle-kit push",
+  "db:seed": "tsx src/db/seed.ts",
+  "db:studio": "drizzle-kit studio",
+  "db:reset": "drizzle-kit drop && npm run db:push && npm run db:seed"
+}
+```
+
+**Takeaway**: Treat seed scripts as critical infrastructure. They save hours of manual data entry and ensure everyone works with consistent test data.
+
+---
+
+## Theme System & Design System Learnings
+
+### 1. **shadcn/ui: The Component Library That Isn't**
+
+shadcn/ui is unique—it's not an npm package you install. Instead, you **copy components into your codebase**. This was initially confusing but proved brilliant:
+
+**Traditional Component Library (e.g., Material-UI)**:
+- Install package: `npm install @mui/material`
+- Import components: `import { Button } from '@mui/material'`
+- Stuck with their styling system
+- Hard to customize deeply
+
+**shadcn/ui Approach**:
+- Copy component: `npx shadcn-ui@latest add button`
+- Component code lives in `components/ui/button.tsx`
+- Full control over styling, behavior, variants
+- Easy to customize for your design system
+
+**Benefits I Experienced**:
+- ✅ No CSS conflicts with other libraries
+- ✅ Can modify components directly (added `cursor-pointer` classes)
+- ✅ Smaller bundle size (only include components you use)
+- ✅ Learn by reading the actual component code
+
+**Takeaway**: For new projects where you want full design control, shadcn/ui's "copy, don't install" philosophy is liberating. You own the code.
+
+### 2. **Dark Mode: Easier Than Expected**
+
+Implementing dark mode used to require:
+- Manual CSS for `.dark` classes on every element
+- Switching between theme tokens
+- Complex JavaScript to detect system preference
+
+With `next-themes`, it was **one component**:
+
+```tsx
+// providers/theme-provider.tsx
+<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  {children}
+</ThemeProvider>
+```
+
+Then define colors once in CSS:
+```css
+:root {
+  --background: oklch(1 0 0); /* Light mode */
+}
+
+.dark {
+  --background: oklch(0.145 0 0); /* Dark mode */
+}
+```
+
+**Auto-Switching**: `defaultTheme="system"` means it follows the user's OS preference automatically. No manual toggle needed (though I added one for explicit control).
+
+**Takeaway**: Modern dark mode libraries have eliminated 90% of the complexity. Spend your time on content, not theme plumbing.
+
+### 3. **Font Loading in Next.js: Subtle But Critical**
+
+The Geist font rendering bug taught me a valuable lesson about CSS cascade and Next.js font optimization.
+
+**Initial Approach (Didn't Work)**:
+```tsx
+<body className={`${GeistSans.variable} ${GeistMono.variable}`}>
+  {/* Font variables set, but not applied */}
+</body>
+```
+
+**Working Approach**:
+```tsx
+<html className={`${GeistSans.variable} ${GeistMono.variable}`}>
+  <body className="font-sans antialiased">
+    {/* Now font-sans resolves correctly */}
+  </body>
+</html>
+```
+
+**Why It Matters**:
+- CSS variables on `<html>` cascade to all descendants
+- Tailwind's `font-sans` class looks for `--font-sans` in parent scope
+- If variables are on `<body>`, `<html>` doesn't have them
+
+**CSS Mapping**:
+```css
+@theme inline {
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+```
+
+This maps Tailwind's `font-sans` utility to the Next.js font variable `--font-geist-sans`.
+
+**Takeaway**: Font loading in Next.js is powerful but requires understanding:
+1. Where to place CSS variables (highest common ancestor)
+2. How Tailwind's font utilities resolve variables
+3. The need for explicit font class application (`font-sans`)
+
+### 4. **Systematic Component Conversion**
+
+Converting 4 tabs to shadcn components taught me the value of **systematic refactoring**:
+
+**Process**:
+1. Identify all interactive elements (buttons, inputs, selects)
+2. Replace `<button>` with `<Button variant="default">`
+3. Replace `<input>` with `<Input type="text">`
+4. Replace manual table HTML with `<Table><TableBody><TableRow>` primitives
+5. Replace manual badges with `<Badge variant="default">`
+
+**Before** (Manual HTML):
+```tsx
+<button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+  Apply Filters
+</button>
+```
+
+**After** (shadcn Primitive):
+```tsx
+<Button onClick={handleFilter}>Apply Filters</Button>
+```
+
+**Benefits**:
+- Consistent styling across all tabs
+- Built-in accessibility (focus states, keyboard navigation)
+- Variants for different styles (`variant="destructive"` for delete buttons)
+- Easier to maintain (change Button component once, affects all usages)
+
+**Takeaway**: Investing 2-3 hours in systematic component conversion pays off immediately in consistency and long-term maintainability.
+
+---
+
 ## Conclusion
 
 AI-assisted development is not about replacing developers but about amplifying their effectiveness. The 69% time savings came from offloading repetitive, pattern-based tasks to the AI while I focused on:
@@ -288,6 +523,30 @@ The most successful interactions were when I treated the AI as a junior develope
 - **Use shared type definitions between frontend and backend**
 
 **Final Metric**: Delivered a functional compliance dashboard with backend API in ~4 hours initial development + ~30 minutes bug fixes = 4.5 hours total, compared to 12-14 hours manually. That's still a **3x productivity multiplier** even accounting for post-implementation fixes.
+
+---
+
+---
+
+## Updated Project Timeline (Including Database & Theme)
+
+| Phase | Time with AI | Estimated Manual | Savings |
+|-------|-------------|------------------|---------|
+| Initial scaffold (backend + frontend) | 2 hours | 6 hours | 67% |
+| Feature implementation (4 tabs) | 4 hours | 12 hours | 67% |
+| Bug fixes (3 bugs) | 1 hour | 3 hours | 67% |
+| **Database integration** | **2 hours** | **8 hours** | **75%** |
+| **Theme system overhaul** | **3 hours** | **10 hours** | **70%** |
+| **Font rendering fix** | **15 min** | **1 hour** | **75%** |
+| Documentation updates | 1.25 hours | 4 hours | 69% |
+| **Total** | **~13.5 hours** | **~44 hours** | **~69%** |
+
+**Key Observations**:
+- Database integration was faster with AI because Drizzle schema generation, seed scripts, and query writing were handled automatically
+- Theme system conversion (4 tabs × multiple components) would have been tedious manually but AI systematically converted each component
+- Font debugging was quick because AI knew CSS cascade rules and Tailwind v4 @theme syntax
+
+**Final Productivity Multiplier**: **3.25x** (44 hours → 13.5 hours)
 
 ---
 

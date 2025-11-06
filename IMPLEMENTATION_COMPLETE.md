@@ -2,7 +2,7 @@
 
 ## Summary
 
-All 4 dashboard tabs have been fully implemented for the FuelEU Maritime compliance platform.
+All 4 dashboard tabs have been fully implemented for the FuelEU Maritime compliance platform, with complete database integration (Neon Postgres + Drizzle ORM) and a comprehensive theme system (shadcn/ui with dark mode).
 
 ---
 
@@ -62,6 +62,91 @@ All 4 dashboard tabs have been fully implemented for the FuelEU Maritime complia
     - CB After Pool for each member
     - Total Transferred amount
 - **File:** `frontend/components/PoolingTab.tsx`
+
+---
+
+## Database Integration ✅
+
+### Architecture: Dual Storage Modes
+
+The backend supports **flexible storage** for maximum developer experience:
+
+#### In-Memory Mode (Default)
+- **Use Case**: Quick prototyping, testing, CI/CD
+- **Setup**: No DATABASE_URL needed
+- **Data**: Uses hardcoded seed data from `backend/src/data/seedRoutes.ts`
+
+#### Database Mode (Production)
+- **Use Case**: Production deployments with persistent data
+- **Setup**: Set DATABASE_URL in `.env` to Neon Postgres connection string
+- **ORM**: Drizzle ORM with type-safe queries
+- **Schema**: 6 tables (routes, ships, ship_compliance, bank_entries, pools, pool_members)
+
+**Auto-Detection**: Backend automatically detects DATABASE_URL and switches modes at startup.
+
+### Database Schema
+
+**Tables Implemented**:
+1. **routes** - Route records with shipId FK, GHG intensity, fuel consumption
+2. **ships** - Ship metadata (IMO number, name, vessel type, flag)
+3. **ship_compliance** - Cached CB computations (shipId+year composite PK)
+4. **bank_entries** - Banking transactions (Article 20)
+5. **pools** - Compliance pools (Article 21)
+6. **pool_members** - Pool membership with CB before/after pooling
+
+**Database Management Scripts**:
+- `pnpm run db:push` - Push schema to database (no migration files)
+- `pnpm run db:seed` - Seed database with initial data (5 ships, 5 routes)
+- `pnpm run db:studio` - Launch Drizzle Studio (visual DB browser)
+- `pnpm run db:generate` - Generate migration files
+- `pnpm run db:migrate` - Apply migration files
+
+**Files**:
+- `backend/src/db/schema.ts` - Drizzle schema definitions
+- `backend/src/db/index.ts` - Database connection (Neon serverless + WebSocket)
+- `backend/src/db/seed.ts` - Seed script
+- `backend/src/routes/routes-db.ts` - Database-backed routes
+- `backend/drizzle.config.ts` - Drizzle Kit configuration
+- `backend/DATABASE_SETUP.md` - Comprehensive setup guide
+
+---
+
+## Theme System ✅
+
+### shadcn/ui Integration
+
+The frontend uses a comprehensive **new-york** style theme with:
+
+**Features**:
+- 🌓 **Dark Mode**: Toggle between light, dark, and system themes
+- 🎨 **oklch Color Palette**: Perceptually uniform colors for light/dark modes
+- 🔤 **Geist Fonts**: Geist Sans (body) + Geist Mono (code) with system fallbacks
+- 🎯 **Cursor Pointers**: Explicit cursor-pointer on all interactive elements
+- 🎭 **shadcn Primitives**: All components use Button, Input, Card, Table, Badge, Tabs, Select
+
+**Theme Components**:
+- `frontend/providers/theme-provider.tsx` - ThemeProvider wrapper (next-themes)
+- `frontend/components/theme-toggle.tsx` - Dark mode toggle button (in dashboard header)
+- `frontend/app/layout.tsx` - Root layout with font configuration and ThemeProvider
+- `frontend/app/globals.css` - @theme tokens with oklch colors and font mappings
+
+**Component Conversions**:
+All 4 tabs converted to use shadcn/ui primitives:
+- **RoutesTab.tsx**: Input, Button, Table, Badge, Label
+- **CompareTab.tsx**: Select, Card, Table, Badge, Button
+- **BankingTab.tsx**: Input, Button, Card, Table, Badge, Label
+- **PoolingTab.tsx**: Input, Button, Card, Table, Badge
+
+**Styling Tokens**:
+- Border radius: `--radius: 0.625rem` (rounded corners)
+- Font Sans: `--font-sans: var(--font-geist-sans), system-ui, sans-serif`
+- Font Mono: `--font-mono: var(--font-geist-mono), ui-monospace, monospace`
+- Colors: oklch-based palette with consistent light/dark mode values
+
+**Dependencies**:
+- `next-themes@^0.4.4` - Theme management with system detection
+- `geist@^1.5.1` - Vercel's Geist font family
+- `@radix-ui/react-*` - Accessible UI primitives (tabs, select, label, slot)
 
 ---
 
@@ -229,9 +314,10 @@ git commit -m "feat(dashboard): add all 4 tabs for FuelEU Maritime compliance (r
 ## Known Notes
 
 1. **Recharts dependency:** Added to `package.json` but needs `pnpm install` to resolve
-2. **Database:** Using in-memory storage (Neon Postgres + Drizzle planned but not integrated)
-3. **Package manager:** pnpm (user's explicit requirement)
-4. **Canonical identifier:** shipId for CB operations, routeId for route-level operations
+2. **Database:** Fully integrated with Drizzle ORM + Neon Postgres! Auto-detects DATABASE_URL and falls back to in-memory mode
+3. **Theme System:** Fully implemented with shadcn/ui, dark mode, and Geist fonts
+4. **Package manager:** pnpm (user's explicit requirement)
+5. **Canonical identifier:** shipId for CB operations, routeId for route-level operations
 
 ---
 
@@ -254,6 +340,36 @@ git commit -m "feat(dashboard): add all 4 tabs for FuelEU Maritime compliance (r
 - **Status**: Compliant badges (✅/❌) were already implemented correctly
 - **No changes needed**
 
+**Bug 4: Geist Font Rendering Issue** ✅ Fixed
+- **Issue**: Fonts configured in layout but not rendering in UI
+- **Cause**: CSS variables on `<body>` instead of `<html>`, circular @theme mapping
+- **Fix**: 
+  - Moved font variables to `<html>` tag for proper cascade
+  - Added explicit `font-sans` class to `<body>`
+  - Updated @theme mapping: `--font-sans: var(--font-geist-sans), system-ui, sans-serif`
+- **Result**: Geist Sans renders correctly on all text, Geist Mono on code
+
 ---
 
-**Status:** All implementation complete! All bugs fixed! Ready to run and test. 🚀
+## New Features Added Post-Initial Implementation
+
+### Database Integration (Added)
+- ✅ Drizzle ORM schema with 6 tables
+- ✅ Neon Postgres connection with WebSocket support
+- ✅ Seed script for initial data (5 ships, 5 routes)
+- ✅ Flexible backend: auto-detects DATABASE_URL, falls back to in-memory
+- ✅ Database management scripts (db:push, db:seed, db:studio)
+- ✅ Complete DATABASE_SETUP.md guide
+
+### Theme System (Added)
+- ✅ shadcn/ui component conversion (all 4 tabs)
+- ✅ next-themes with dark mode support
+- ✅ ThemeToggle component in dashboard header
+- ✅ Geist Sans and Geist Mono fonts
+- ✅ oklch-based color palette for light/dark modes
+- ✅ Rounded corners (--radius: 0.625rem)
+- ✅ Cursor pointers on interactive elements
+
+---
+
+**Status:** ✅ All implementation complete! ✅ All bugs fixed! ✅ Database integrated! ✅ Theme system complete! Ready to run and test. 🚀
