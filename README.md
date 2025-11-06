@@ -194,26 +194,36 @@ npm test
 
 ### Frontend Dashboard (4 Tabs)
 
-1. **Routes Tab**
-   - Table of all routes with filters
-   - Set baseline button
+1. **Routes Tab** 📊
+   - **Quick Search**: Real-time, case-insensitive search across all fields (Route ID, Ship ID, Vessel Type, Fuel Type, Year, etc.)
+   - **Advanced Filters**: Popover-based filtering with active filter count badge
+   - **Sortable Columns**: Excel-like sorting with hover indicators on all data columns
+   - **Color-coded Year Badges**: Blue for 2024, Green for 2025
+   - **Baseline Management**: Set baseline button with year-specific tracking
+   - **Dark Mode Support**: Full theme compatibility
 
-2. **Compare Tab**
-   - Baseline vs comparison routes
-   - % difference calculation
-   - Chart visualization (Recharts)
+2. **Compare Tab** 📈
+   - **Interactive Bar Charts**: Modern shadcn charts with responsive design
+   - Baseline vs comparison routes visualization
+   - % difference calculation with compliance indicators
+   - Target reference line (89.3368 gCO₂e/MJ)
+   - Theme-aware colors (adapts to light/dark mode)
+   - Compact bar sizing with elegant spacing
+   - Detailed comparison table with compliant/non-compliant badges
 
-3. **Banking Tab**
-   - Display current CB
-   - Bank surplus action
-   - Apply banked surplus action
-   - Disable actions if no surplus
+3. **Banking Tab** 🏦
+   - Display current CB (Compliance Balance)
+   - Bank surplus action (store positive CB)
+   - Apply banked surplus action (use stored CB for deficits)
+   - Manual fetch with Ship ID and Year inputs
+   - Disable actions if no surplus available
 
-4. **Pooling Tab**
+4. **Pooling Tab** 🤝
    - Display adjusted CB per ship
-   - Create pool with member selection
-   - Greedy allocation algorithm
+   - Create pool with multiple member selection
+   - Greedy allocation algorithm for deficit coverage
    - Pool sum validation (must be ≥ 0)
+   - Real-time CB calculation display
 
 ---
 

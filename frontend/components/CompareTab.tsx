@@ -2,11 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ReferenceLine } from "recharts";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
 
 type Comparison = {
   baseline: any;
@@ -45,8 +53,24 @@ export default function CompareTab() {
     name: c.comparison?.routeId || `Route ${idx + 1}`,
     baseline: c.baseline?.ghgIntensity || 0,
     comparison: c.comparison?.ghgIntensity || 0,
-    target: TARGET_INTENSITY,
   }));
+
+  const chartConfig = {
+    baseline: {
+      label: "Baseline",
+      theme: {
+        light: "hsl(217 91% 60%)",
+        dark: "hsl(217 91% 75%)",
+      },
+    },
+    comparison: {
+      label: "Comparison",
+      theme: {
+        light: "hsl(142 71% 45%)",
+        dark: "hsl(142 71% 70%)",
+      },
+    },
+  } satisfies ChartConfig;
 
   if (loading) return <div className="text-center py-8">Loading comparison data...</div>;
   if (error) return <div className="text-red-600 text-center py-8">Error: {error}</div>;
@@ -77,20 +101,74 @@ export default function CompareTab() {
 
       {/* Chart */}
       {chartData.length > 0 && (
-        <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">GHG Intensity Comparison</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis label={{ value: 'gCO₂e/MJ', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <ReferenceLine y={TARGET_INTENSITY} stroke="red" strokeDasharray="3 3" label="Target" />
-              <Bar dataKey="baseline" fill="#8884d8" name="Baseline" />
-              <Bar dataKey="comparison" fill="#82ca9d" name="Comparison" />
-            </BarChart>
-          </ResponsiveContainer>
+        <Card>
+          <CardHeader>
+            <CardTitle>GHG Intensity Comparison</CardTitle>
+            <CardDescription>
+              Baseline vs Comparison Routes for {year}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="h-[400px] w-full">
+              <BarChart 
+                accessibilityLayer 
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+                barGap={4}
+                barCategoryGap="20%"
+              >
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="name"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  label={{ value: 'gCO₂e/MJ', angle: -90, position: 'insideLeft' }}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dashed" />}
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <ReferenceLine 
+                  y={TARGET_INTENSITY} 
+                  stroke="hsl(var(--destructive))" 
+                  strokeDasharray="3 3" 
+                  label={{ 
+                    value: 'Target', 
+                    position: 'insideTopRight',
+                    fill: '#71717a',
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}
+                />
+                <Bar 
+                  dataKey="baseline" 
+                  fill="var(--color-baseline)" 
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={60}
+                  stroke="hsl(var(--border))"
+                  strokeWidth={1}
+                />
+                <Bar 
+                  dataKey="comparison" 
+                  fill="var(--color-comparison)" 
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={60}
+                  stroke="hsl(var(--border))"
+                  strokeWidth={1}
+                />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
         </Card>
       )}
 

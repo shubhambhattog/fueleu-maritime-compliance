@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FuelEU Maritime Compliance - Frontend
+
+A modern Next.js dashboard for managing and monitoring FuelEU Maritime compliance data, including routes, GHG intensity tracking, baseline comparisons, banking, and pooling.
+
+## Features
+
+### 📊 Routes Management
+- View all maritime routes with detailed GHG intensity data
+- **Quick Search**: Real-time, case-insensitive search across all fields
+- **Advanced Filters**: Popover-based filtering by Ship ID, Year, Vessel Type, and Fuel Type
+- **Sortable Columns**: Excel-like sorting with visual indicators (hover to see arrows)
+- **Color-coded Year Badges**: Blue for 2024, Green for 2025
+- **Baseline Management**: Set and track baseline routes per year
+
+### 📈 Compare Routes
+- Visual comparison of baseline vs. comparison routes
+- **Interactive Bar Charts**: Elegant, responsive charts using shadcn/ui
+- Color-coded bars with proper dark mode support
+- Target reference line with compliance indicators
+- Detailed comparison table with compliance status
+
+### 🏦 Banking & Pooling
+- Manage compliance balance banking
+- Pool management for multiple ships
+- Track banked and applied balances
+
+## Tech Stack
+
+- **Framework**: Next.js 16.0.1 (App Router, Turbopack)
+- **Language**: TypeScript 5.x
+- **UI Components**: shadcn/ui (Radix UI primitives)
+- **Charts**: shadcn charts (built on Recharts)
+- **Styling**: Tailwind CSS 4
+- **Theme**: next-themes with dark mode support
+- **Icons**: lucide-react
+- **Fonts**: Geist Sans & Geist Mono
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Node.js 20+ and pnpm (recommended)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Install dependencies
+pnpm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Run development server
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the dashboard.
+
+### Backend Connection
+
+The frontend connects to the backend API running on `http://localhost:4000`. Make sure the backend server is running:
+
+```bash
+cd ../backend
+npm run dev
+```
+
+## Project Structure
+
+```
+frontend/
+├── app/                    # Next.js App Router pages
+│   ├── layout.tsx         # Root layout with theme provider
+│   └── page.tsx           # Main dashboard page
+├── components/            # React components
+│   ├── ui/               # shadcn/ui components
+│   ├── charts/           # Chart components
+│   ├── RoutesTab.tsx     # Routes management with filters & search
+│   ├── CompareTab.tsx    # Baseline comparison with charts
+│   ├── BankingTab.tsx    # Banking management
+│   ├── PoolingTab.tsx    # Pooling management
+│   └── ThemeToggle.tsx   # Dark mode toggle
+├── lib/
+│   ├── api.ts            # API client
+│   └── utils.ts          # Utility functions
+└── public/               # Static assets
+```
+
+## Key Features Explained
+
+### Quick Search
+The routes tab includes a powerful quick search feature that searches across all fields in real-time:
+- Case-insensitive matching
+- Searches: Route ID, Ship ID, Vessel Type, Fuel Type, Year, and all numerical values
+- No need to open filters for simple searches
+
+### Advanced Filters
+Click the "Filters" button to access advanced filtering:
+- Filter by Ship ID, Year, Vessel Type, and Fuel Type
+- Active filter count badge
+- Clear all filters with one click
+- Filters persist until cleared
+
+### Sortable Columns
+All data columns in the Routes tab are sortable:
+- Click column headers to sort
+- Arrows appear on hover for inactive columns
+- Active sort column shows directional arrow (up/down)
+- Default sort: Year (ascending)
+
+### Chart Visualizations
+The Compare tab features professional charts:
+- Theme-aware colors (adapts to light/dark mode)
+- Rounded bar corners for modern look
+- Compact bar sizing (max 60px width)
+- Reference line for target GHG intensity
+- Interactive tooltips with formatted data
+
+## Environment Variables
+
+Create a `.env.local` file (optional):
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
+
+## Available Scripts
+
+```bash
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
+pnpm lint         # Run ESLint
+```
+
+## Dark Mode
+
+The application fully supports dark mode:
+- Toggle using the theme switch in the header
+- Automatic system preference detection
+- Persistent theme selection
+- All components properly styled for both modes
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [shadcn/ui Documentation](https://ui.shadcn.com)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Recharts Documentation](https://recharts.org)

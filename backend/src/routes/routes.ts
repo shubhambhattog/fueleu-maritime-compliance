@@ -2,7 +2,7 @@ import express from "express";
 import { db } from "../db";
 import { routes, bankEntries as bankEntriesTable, pools, poolMembers } from "../db/schema";
 import { computeShipCB } from "../core/computeCB";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, ilike } from "drizzle-orm";
 
 const router = express.Router();
 
@@ -14,10 +14,11 @@ router.get("/routes", async (req, res) => {
     let query = db.select().from(routes);
     const conditions = [];
     
-    if (shipId) conditions.push(eq(routes.shipId, String(shipId)));
+    // Use ilike for case-insensitive string matching
+    if (shipId) conditions.push(ilike(routes.shipId, String(shipId)));
     if (year) conditions.push(eq(routes.year, Number(year)));
-    if (vesselType) conditions.push(eq(routes.vesselType, String(vesselType)));
-    if (fuelType) conditions.push(eq(routes.fuelType, String(fuelType)));
+    if (vesselType) conditions.push(ilike(routes.vesselType, String(vesselType)));
+    if (fuelType) conditions.push(ilike(routes.fuelType, String(fuelType)));
     
     const result = conditions.length > 0 
       ? await db.select().from(routes).where(and(...conditions))
