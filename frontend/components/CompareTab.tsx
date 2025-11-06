@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 type Comparison = {
   baseline: any;
@@ -53,28 +57,28 @@ export default function CompareTab() {
         <h2 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Compare Routes</h2>
         <div className="flex gap-2 items-center">
           <label className="text-sm text-zinc-600 dark:text-zinc-400">Year:</label>
-          <select
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50"
-          >
-            <option value={2024}>2024</option>
-            <option value={2025}>2025</option>
-          </select>
+          <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+            <SelectTrigger size="sm">
+              <SelectValue>{year}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"2024"}>2024</SelectItem>
+              <SelectItem value={"2025"}>2025</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Target Info */}
-      <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-900">
-        <p className="text-sm text-blue-900 dark:text-blue-100">
+      <Card className="p-4">
+        <p className="text-sm">
           <strong>Target GHG Intensity:</strong> {TARGET_INTENSITY.toFixed(4)} gCO₂e/MJ (2% below 91.16)
         </p>
-      </div>
+      </Card>
 
       {/* Chart */}
       {chartData.length > 0 && (
-        <div className="bg-white dark:bg-zinc-900 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800">
-          <h3 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-zinc-50">GHG Intensity Comparison</h3>
+        <Card className="p-4">
+          <h3 className="text-lg font-semibold mb-4">GHG Intensity Comparison</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -87,58 +91,46 @@ export default function CompareTab() {
               <Bar dataKey="comparison" fill="#82ca9d" name="Comparison" />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-zinc-100 dark:bg-zinc-800">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50">Route ID</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50">Vessel Type</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50">Fuel Type</th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-50">Baseline<br/>GHG (gCO₂e/MJ)</th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-50">Comparison<br/>GHG (gCO₂e/MJ)</th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-50">% Difference</th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-50">Compliant</th>
-            </tr>
-          </thead>
-          <tbody>
-            {comparisons.map((comp, idx) => (
-              <tr key={idx} className="border-t border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900">
-                <td className="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50">{comp.comparison?.routeId || "-"}</td>
-                <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">{comp.comparison?.vesselType || "-"}</td>
-                <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">{comp.comparison?.fuelType || "-"}</td>
-                <td className="px-4 py-3 text-sm text-right text-zinc-900 dark:text-zinc-50">
-                  {comp.baseline?.ghgIntensity?.toFixed(2) || "-"}
-                </td>
-                <td className="px-4 py-3 text-sm text-right text-zinc-900 dark:text-zinc-50">
-                  {comp.comparison?.ghgIntensity?.toFixed(2) || "-"}
-                </td>
-                <td className="px-4 py-3 text-sm text-right text-zinc-900 dark:text-zinc-50">
-                  {comp.percentDiff !== null ? `${comp.percentDiff.toFixed(2)}%` : "-"}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {comp.compliant !== null ? (
-                    comp.compliant ? (
-                      <span className="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded">
-                        ✅ Compliant
-                      </span>
-                    ) : (
-                      <span className="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded">
-                        ❌ Non-Compliant
-                      </span>
-                    )
+      <Table>
+        <TableHeader>
+          <tr className="bg-zinc-100 dark:bg-zinc-800">
+            <TableHead>Route ID</TableHead>
+            <TableHead>Vessel Type</TableHead>
+            <TableHead>Fuel Type</TableHead>
+            <TableHead className="text-right">Baseline<br/>GHG (gCO₂e/MJ)</TableHead>
+            <TableHead className="text-right">Comparison<br/>GHG (gCO₂e/MJ)</TableHead>
+            <TableHead className="text-right">% Difference</TableHead>
+            <TableHead className="text-center">Compliant</TableHead>
+          </tr>
+        </TableHeader>
+        <TableBody>
+          {comparisons.map((comp, idx) => (
+            <TableRow key={idx} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
+              <TableCell className="text-sm text-zinc-900 dark:text-zinc-50">{comp.comparison?.routeId || "-"}</TableCell>
+              <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">{comp.comparison?.vesselType || "-"}</TableCell>
+              <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">{comp.comparison?.fuelType || "-"}</TableCell>
+              <TableCell className="text-sm text-right text-zinc-900 dark:text-zinc-50">{comp.baseline?.ghgIntensity?.toFixed(2) || "-"}</TableCell>
+              <TableCell className="text-sm text-right text-zinc-900 dark:text-zinc-50">{comp.comparison?.ghgIntensity?.toFixed(2) || "-"}</TableCell>
+              <TableCell className="text-sm text-right text-zinc-900 dark:text-zinc-50">{comp.percentDiff !== null ? `${comp.percentDiff.toFixed(2)}%` : "-"}</TableCell>
+              <TableCell className="text-center">
+                {comp.compliant !== null ? (
+                  comp.compliant ? (
+                    <Badge variant="secondary">✅ Compliant</Badge>
                   ) : (
-                    <span className="text-zinc-400">-</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <Badge variant="destructive">❌ Non-Compliant</Badge>
+                  )
+                ) : (
+                  <span className="text-zinc-400">-</span>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {comparisons.length === 0 && (
         <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">

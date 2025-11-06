@@ -1,45 +1,70 @@
 import express from "express";
-import { seededRoutes } from "../data/seedRoutes";
+import { db } from "../db";
+import { routes, bankEntries as bankEntriesTable, pools, poolMembers } from "../db/schema";
 import { computeShipCB } from "../core/computeCB";
+import { eq, and, sql } from "drizzle-orm";
 
 const router = express.Router();
 
-// In-memory store (fallback when no DB configured). Mutations operate here.
-const routesStore = seededRoutes;
-
-// Simple in-memory bank entries for scaffold
-type BankEntry = {
-  id: string;
-  shipId: string;
-  year: number;
-  amount_g: number; // grams
-  type: "bank" | "apply";
-  createdAt: string;
-};
-
-const bankEntries: BankEntry[] = [];
-
 // ROUTES
-router.get("/routes", (req, res) => {
-  const q = req.query;
-  let out = routesStore as any[];
-  if (q.shipId) out = out.filter((r) => r.shipId === q.shipId);
-  if (q.year) out = out.filter((r) => String(r.year) === String(q.year));
-  if (q.vesselType) out = out.filter((r) => r.vesselType === q.vesselType);
-  if (q.fuelType) out = out.filter((r) => r.fuelType === q.fuelType);
-  res.json(out);
+router.get("/routes", async (req, res) => {
+  try {
+    const { shipId, year, vesselType, fuelType } = req.query;
+    
+    let query = db.select().from(routes);
+    const conditions = [];
+    
+    if (shipId) conditions.push(eq(routes.shipId, String(shipId)));
+    if (year) conditions.push(eq(routes.year, Number(year)));
+    if (vesselType) conditions.push(eq(routes.vesselType, String(vesselType)));
+    if (fuelType) conditions.push(eq(routes.fuelType, String(fuelType)));
+    
+    const result = conditions.length > 0 
+      ? await db.select().from(routes).where(and(...conditions))
+      : await db.select().from(routes);
+    
+    res.json(result.map(r => ({
+      routeId: r.routeId,
+      shipId: r.shipId,
+      year: r.year,
+      vesselType: r.vesselType,
+      fuelType: r.fuelType,
+      ghgIntensity: Number(r.ghgIntensity),
+      fuelConsumption: Number(r.fuelConsumption),
+      distance: r.distance ? Number(r.distance) : undefined,
+      totalEmissions: r.totalEmissions ? Number(r.totalEmissions) : undefined,
+      isBaseline: r.isBaseline,
+    })));
+  } catch (error) {
+    console.error("Error fetching routes:", error);
+    res.status(500).json({ error: "Failed to fetch routes" });
+  }
 });
 
-router.post("/routes/:routeId/baseline", (req, res) => {
-  const { routeId } = req.params;
-  const found = routesStore.find((r) => r.routeId === routeId);
-  if (!found) return res.status(404).json({ error: "Route not found" });
-  // unset other baselines for same year
-  routesStore.forEach((r) => {
-    if (r.year === found.year) r.isBaseline = false;
-  });
-  found.isBaseline = true;
-  res.json({ ok: true, route: found });
+router.post("/routes/:routeId/baseline", async (req, res) => {
+  try {
+    const { routeId } = req.params;
+    
+    // Find the route
+    const [found] = await db.select().from(routes).where(eq(routes.routeId, routeId));
+    if (!found) return res.status(404).json({ error: "Route not found" });
+    
+    // Unset other baselines for same year
+    await db.update(routes)
+      .set({ isBaseline: false })
+      .where(eq(routes.year, found.year));
+    
+    // Set this route as baseline
+    await db.update(routes)
+      .set({ isBaseline: true, updatedAt: new Date() })
+      .where(eq(routes.routeId, routeId));
+    
+    const [updated] = await db.select().from(routes).where(eq(routes.routeId, routeId));
+    res.json({ ok: true, route: updated });
+  } catch (error) {
+    console.error("Error setting baseline:", error);
+    res.status(500).json({ error: "Failed to set baseline" });
+  }
 });
 
 router.get("/routes/comparison", (req, res) => {

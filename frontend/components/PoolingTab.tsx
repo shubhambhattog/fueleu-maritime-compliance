@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { api, type CBResult } from "@/lib/api";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 interface MemberCB {
   shipId: string;
@@ -87,42 +92,35 @@ export default function PoolingTab() {
       <div className="flex gap-4 items-end">
         <div>
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Year</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50"
-          />
+          <Input type="number" value={year} onChange={(e: any) => setYear(Number(e.target.value))} />
         </div>
       </div>
 
       {/* Member Selection */}
-      <div className="p-4 bg-white dark:bg-zinc-950 rounded-lg border border-zinc-200 dark:border-zinc-800">
+      <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-zinc-50">Select Pool Members</h3>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {availableShips.map(shipId => (
             <label
               key={shipId}
-              className={`flex items-center gap-2 p-3 rounded cursor-pointer transition-colors ${
+              className={`flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all hover:scale-[1.02] ${
                 selectedMembers.includes(shipId)
-                  ? "bg-blue-100 dark:bg-blue-950 border-2 border-blue-500"
-                  : "bg-zinc-50 dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800"
+                  ? "bg-primary/10 border-2 border-primary shadow-sm"
+                  : "bg-muted/50 border-2 border-border hover:border-primary/50"
               }`}
             >
               <input
                 type="checkbox"
                 checked={selectedMembers.includes(shipId)}
                 onChange={() => toggleMember(shipId)}
-                className="w-4 h-4"
+                className="w-4 h-4 cursor-pointer accent-primary"
               />
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{shipId}</span>
+              <span className="text-sm font-medium cursor-pointer">{shipId}</span>
             </label>
           ))}
         </div>
-        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-          Selected: {selectedMembers.length} ships (minimum 2 required)
-        </p>
-      </div>
+        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">Selected: {selectedMembers.length} ships (minimum 2 required)</p>
+      </Card>
 
       {error && <div className="text-red-600 bg-red-50 dark:bg-red-950 p-4 rounded">{error}</div>}
 
@@ -132,80 +130,57 @@ export default function PoolingTab() {
       {memberCBs.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-4 text-zinc-900 dark:text-zinc-50">Member Adjusted CBs (Before Pool)</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-zinc-100 dark:bg-zinc-800">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-zinc-900 dark:text-zinc-50">Ship ID</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-50">CB (tonnes)</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-zinc-900 dark:text-zinc-50">CB (grams)</th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-50">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {memberCBs.map(member => (
-                  <tr key={member.shipId} className="border-t border-zinc-200 dark:border-zinc-800">
-                    <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50">{member.shipId}</td>
-                    <td className="px-4 py-3 text-sm text-right text-zinc-900 dark:text-zinc-50">
-                      {member.cb_t.toFixed(3)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-zinc-600 dark:text-zinc-400">
-                      {member.cb_g.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {member.cb_g > 0 ? (
-                        <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                          ✅ Surplus
-                        </span>
-                      ) : member.cb_g < 0 ? (
-                        <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                          ❌ Deficit
-                        </span>
-                      ) : (
-                        <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
-                          ⚖️ Neutral
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t-2 border-zinc-300 dark:border-zinc-700 font-bold">
-                  <td className="px-4 py-3 text-sm text-zinc-900 dark:text-zinc-50">Pool Sum</td>
-                  <td className="px-4 py-3 text-sm text-right text-zinc-900 dark:text-zinc-50">
-                    {(poolSum / 1_000_000).toFixed(3)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right text-zinc-900 dark:text-zinc-50">
-                    {poolSum.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {poolSum >= 0 ? (
-                      <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                        ✅ Valid Pool
-                      </span>
+          <Table>
+            <TableHeader>
+              <tr className="bg-zinc-100 dark:bg-zinc-800">
+                <TableHead>Ship ID</TableHead>
+                <TableHead className="text-right">CB (tonnes)</TableHead>
+                <TableHead className="text-right">CB (grams)</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {memberCBs.map(member => (
+                <TableRow key={member.shipId}>
+                  <TableCell className="font-medium">{member.shipId}</TableCell>
+                  <TableCell className="text-right">{member.cb_t.toFixed(3)}</TableCell>
+                  <TableCell className="text-right text-zinc-600 dark:text-zinc-400">{member.cb_g.toLocaleString()}</TableCell>
+                  <TableCell className="text-center">
+                    {member.cb_g > 0 ? (
+                      <Badge variant="secondary">✅ Surplus</Badge>
+                    ) : member.cb_g < 0 ? (
+                      <Badge variant="destructive">❌ Deficit</Badge>
                     ) : (
-                      <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                        ❌ Invalid (Deficit)
-                      </span>
+                      <Badge variant="default">⚖️ Neutral</Badge>
                     )}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <div className="mt-4">
+            <Table>
+              <TableBody>
+                <TableRow className="border-t-2 border-zinc-300 dark:border-zinc-700 font-bold">
+                  <TableCell>Pool Sum</TableCell>
+                  <TableCell className="text-right">{(poolSum / 1_000_000).toFixed(3)}</TableCell>
+                  <TableCell className="text-right">{poolSum.toLocaleString()}</TableCell>
+                  <TableCell className="text-center">
+                    {poolSum >= 0 ? <Badge variant="secondary">✅ Valid Pool</Badge> : <Badge variant="destructive">❌ Invalid (Deficit)</Badge>}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
         </div>
       )}
 
       {/* Create Pool Button */}
       <div className="flex justify-center">
-        <button
-          onClick={handleCreatePool}
-          disabled={!canCreatePool || loading}
-          className="px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button onClick={handleCreatePool} disabled={!canCreatePool || loading} size="lg">
           {loading ? "Creating Pool..." : "Create Pool"}
-        </button>
+        </Button>
       </div>
 
       {!canCreatePool && selectedMembers.length > 0 && (
@@ -220,36 +195,30 @@ export default function PoolingTab() {
 
       {/* Pool Result (After Pool) */}
       {poolResult && (
-        <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-900">
+        <Card className="p-4 bg-green-50 dark:bg-green-950">
           <h3 className="text-lg font-semibold mb-4 text-green-900 dark:text-green-100">Pool Created Successfully!</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-green-100 dark:bg-green-900">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-green-900 dark:text-green-100">Ship ID</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-green-900 dark:text-green-100">CB After Pool (t)</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-green-900 dark:text-green-100">CB After Pool (g)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {poolResult.members.map((member: any) => (
-                  <tr key={member.shipId} className="border-t border-green-200 dark:border-green-800">
-                    <td className="px-4 py-3 text-sm font-medium text-green-900 dark:text-green-100">{member.shipId}</td>
-                    <td className="px-4 py-3 text-sm text-right text-green-900 dark:text-green-100">
-                      {(member.cbAfter / 1_000_000).toFixed(3)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-right text-green-800 dark:text-green-200">
-                      {member.cbAfter.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              <tr className="bg-green-100 dark:bg-green-900">
+                <TableHead>Ship ID</TableHead>
+                <TableHead className="text-right">CB After Pool (t)</TableHead>
+                <TableHead className="text-right">CB After Pool (g)</TableHead>
+              </tr>
+            </TableHeader>
+            <TableBody>
+              {poolResult.members.map((member: any) => (
+                <TableRow key={member.shipId}>
+                  <TableCell className="font-medium text-green-900 dark:text-green-100">{member.shipId}</TableCell>
+                  <TableCell className="text-right text-green-900 dark:text-green-100">{((member.cb_after_g ?? 0) / 1_000_000).toFixed(3)}</TableCell>
+                  <TableCell className="text-right text-green-800 dark:text-green-200">{(member.cb_after_g ?? 0).toLocaleString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <div className="mt-4 text-sm text-green-800 dark:text-green-200">
-            <strong>Total Transferred:</strong> {(poolResult.totalTransferred / 1_000_000).toFixed(3)} tonnes ({poolResult.totalTransferred.toLocaleString()} g)
+            <strong>Pool Sum (After):</strong> {((poolResult.poolSum ?? 0) / 1_000_000).toFixed(3)} tonnes ({(poolResult.poolSum ?? 0).toLocaleString()} g)
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

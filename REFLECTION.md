@@ -187,6 +187,82 @@ The AI handled the "how" while I focused on the "what" and "why."
 
 ---
 
+## Real-World Debugging Experience
+
+### Bug 1: Performance Issue (Banking Tab Auto-Fetch)
+
+**Discovery**: User reported that typing in the Ship ID field was sluggish and causing excessive API calls.
+
+**Analysis Process**:
+1. Checked component for `useEffect` hooks
+2. Found dependency array `[shipId, year]` triggering on every keystroke
+3. Realized this pattern works for dropdowns but not text inputs
+
+**Learning**: AI agents often generate common patterns (useEffect with dependencies) without considering UX implications. The pattern was technically correct but created poor user experience.
+
+**Solution**: Removed the useEffect and used manual "Fetch Data" button instead. This is actually better UX—gives users control over when to fetch.
+
+**Takeaway**: Question "standard patterns" when they impact performance or UX. Sometimes manual control is better than automatic reactivity.
+
+---
+
+### Bug 2: Runtime Error (Property Name Mismatch)
+
+**Discovery**: Pool creation resulted in `Cannot read properties of undefined` error.
+
+**Analysis Process**:
+1. Located error in PoolingTab.tsx line 242: `member.cbAfter.toLocaleString()`
+2. Checked backend response structure in routes.ts
+3. Found backend returns `cb_after_g` (snake_case) but frontend expected `cbAfter` (camelCase)
+
+**Learning**: This highlighted a gap in AI-assisted development—the agent generated frontend and backend separately without ensuring API contract consistency. In a real codebase with shared type definitions, this would have been caught by TypeScript.
+
+**Solution**: 
+- Changed frontend to use `member.cb_after_g`
+- Added null coalescing (`?? 0`) for safety
+- Fixed similar issue with `poolSum` vs `totalTransferred`
+
+**Takeaway**: Always verify the actual API response structure, especially when frontend and backend are developed separately. Consider using OpenAPI specs or shared type definitions to prevent this class of errors.
+
+---
+
+### Bug 3: False Alarm (Compliant Badges)
+
+**Discovery**: User mentioned "no compliant badges" in Compare tab.
+
+**Analysis**: Checked existing code—badges were already implemented correctly with ✅/❌ icons and proper styling.
+
+**Learning**: Sometimes perceived issues are actually working features that the user hasn't seen in action yet (because test data didn't trigger that code path). This highlighted the importance of having diverse test data.
+
+**Takeaway**: Before "fixing" something, verify it's actually broken. Sometimes the issue is missing test coverage, not buggy code.
+
+---
+
+## Lessons From Post-Implementation Phase
+
+### 1. **User Testing Reveals Real Issues**
+
+All three bugs were discovered during user testing, not during development. This reinforces that:
+- AI-generated code can pass code review but fail in real use
+- Performance issues (like auto-fetch) aren't always obvious in the code
+- Integration bugs (API contract mismatches) need runtime testing
+
+### 2. **Quick Fix Turnaround**
+
+Each bug was fixed in <10 minutes because:
+- Error messages were clear and pointed to exact lines
+- Systematic debugging (check source, check target, find mismatch)
+- AI agent quickly generated fixes once problem was identified
+
+### 3. **Prevention Strategies**
+
+These bugs could have been prevented by:
+- **Performance testing**: Load testing the Banking tab with slow network would have revealed excessive API calls
+- **Integration testing**: Testing the full flow (create pool → display results) would have caught the property name mismatch
+- **Shared types**: Using a shared TypeScript types package between frontend and backend would have caught snake_case vs camelCase at compile time
+
+---
+
 ## Conclusion
 
 AI-assisted development is not about replacing developers but about amplifying their effectiveness. The 69% time savings came from offloading repetitive, pattern-based tasks to the AI while I focused on:
@@ -197,13 +273,21 @@ AI-assisted development is not about replacing developers but about amplifying t
 
 The most successful interactions were when I treated the AI as a junior developer: giving clear instructions, providing context, validating output, and teaching it project patterns. The least successful were when I expected it to make strategic decisions or verify external facts.
 
+**Post-implementation debugging** reinforced that AI agents are excellent at code generation but still need human oversight for:
+- Performance optimization (recognizing when patterns create UX issues)
+- Integration validation (ensuring API contracts match)
+- Test coverage (creating diverse test data)
+
 **Would I use AI agents on future projects?** Absolutely. But I would:
 - Start with clearer architecture definitions (ports & interfaces)
 - Use test-driven development to catch issues earlier
 - Maintain a prompt library for common patterns
 - Always validate business logic against specifications
+- **Set up integration tests early to catch API contract mismatches**
+- **Include performance testing in the development workflow**
+- **Use shared type definitions between frontend and backend**
 
-**Final Metric**: Delivered a functional compliance dashboard with backend API in ~4 hours that would have taken 12-14 hours manually, with equal or better code quality. That's a 3x productivity multiplier—hard to argue with those results.
+**Final Metric**: Delivered a functional compliance dashboard with backend API in ~4 hours initial development + ~30 minutes bug fixes = 4.5 hours total, compared to 12-14 hours manually. That's still a **3x productivity multiplier** even accounting for post-implementation fixes.
 
 ---
 

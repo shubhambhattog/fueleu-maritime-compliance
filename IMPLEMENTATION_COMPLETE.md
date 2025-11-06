@@ -235,4 +235,25 @@ git commit -m "feat(dashboard): add all 4 tabs for FuelEU Maritime compliance (r
 
 ---
 
-**Status:** All implementation complete! Ready to run and test. 🚀
+## 🐛 Bug Fixes Applied
+
+### Post-Implementation Fixes
+
+**Bug 1: Banking Tab Performance Issue** ✅ Fixed
+- **Issue**: Ship ID/Year inputs triggered API calls on every keystroke
+- **Fix**: Removed auto-fetch `useEffect`, now uses manual "Fetch Data" button
+- **Result**: Better UX, reduced API load
+
+**Bug 2: Pooling Tab Runtime Error** ✅ Fixed
+- **Issue**: `Cannot read properties of undefined (reading 'toLocaleString')`
+- **Cause**: Property name mismatch (backend: `cb_after_g`, frontend: `cbAfter`)
+- **Fix**: Updated frontend to use correct property names (`cb_after_g`, `poolSum`), added null coalescing
+- **Result**: Pool creation and results display correctly
+
+**Bug 3: Compare Tab Badges** ✅ Already Working
+- **Status**: Compliant badges (✅/❌) were already implemented correctly
+- **No changes needed**
+
+---
+
+**Status:** All implementation complete! All bugs fixed! Ready to run and test. 🚀

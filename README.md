@@ -203,10 +203,32 @@ curl -X POST http://localhost:4000/pools \
 
 ---
 
-## 📚 Documentation
+## � Known Issues & Fixes
 
-- **AGENT_WORKFLOW.md**: AI agent usage log (prompts, outputs, validations)
-- **REFLECTION.md**: Learning outcomes and efficiency analysis
+### Fixed in Latest Version
+
+1. **Banking Tab Auto-Fetch Issue** (Fixed)
+   - **Problem**: Ship ID and Year inputs triggered API calls on every keystroke
+   - **Solution**: Removed auto-fetch useEffect, now requires manual "Fetch Data" button click
+   - **Impact**: Better UX and reduced API load
+
+2. **Pooling Tab Runtime Error** (Fixed)
+   - **Problem**: `Cannot read properties of undefined` error on pool creation
+   - **Root Cause**: Backend returned `cb_after_g` (snake_case) but frontend expected `cbAfter` (camelCase)
+   - **Solution**: Updated frontend to match backend property names, added null coalescing for safety
+   - **Impact**: Pool creation and result display now works correctly
+
+3. **API Contract Consistency**
+   - **Recommendation**: Use shared TypeScript types between frontend and backend to prevent property name mismatches
+   - **Future**: Consider OpenAPI spec generation for automatic type synchronization
+
+---
+
+## �📚 Documentation
+
+- **AGENT_WORKFLOW.md**: Detailed AI agent usage log (prompts, outputs, validations, bug fixes)
+- **REFLECTION.md**: Learning outcomes, efficiency analysis, and debugging insights
+- **IMPLEMENTATION_COMPLETE.md**: Testing checklist and run instructions
 - **README.md**: This file (setup & architecture)
 
 ---
