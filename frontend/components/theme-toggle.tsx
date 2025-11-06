@@ -11,11 +11,10 @@ export function ThemeToggle() {
   const [mounted, setMounted] = React.useState(false)
   const { ref, toggleSwitchTheme, isDarkMode } = useModeAnimation({
                                                                     animationType: ThemeAnimationType.CIRCLE,
-                                                                    blurAmount: 4, // Optional: adjust blur intensity
-                                                                    duration: 1000,    // Optional: adjust animation duration
+                                                                    blurAmount: 4,
+                                                                    duration: 1000,
                                                                   })
 
-  // useEffect only runs on the client, so now we can safely show the UI
   React.useEffect(() => {
     setMounted(true)
   }, [])
