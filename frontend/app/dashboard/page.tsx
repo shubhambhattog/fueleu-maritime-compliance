@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import RoutesTab from "@/components/RoutesTab";
 import CompareTab from "@/components/CompareTab";
 import BankingTab from "@/components/BankingTab";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { siteConfig } from "@/config/site";
 
 type Tab = "routes" | "compare" | "banking" | "pooling";
 
@@ -23,9 +25,18 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">
-            FuelEU Compliance Dashboard
-          </h1>
+          <div className="flex items-center gap-4">
+            <Image 
+              src={siteConfig.company.logo}
+              alt={siteConfig.company.name}
+              width={siteConfig.logos.navbar.width}
+              height={siteConfig.logos.navbar.height}
+              className={siteConfig.logos.navbar.className}
+            />
+            <h1 className="text-3xl font-bold">
+              {siteConfig.pages.dashboard.title}
+            </h1>
+          </div>
           <ThemeToggle />
         </div>
       </header>

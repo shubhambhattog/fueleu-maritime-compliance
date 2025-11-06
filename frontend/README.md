@@ -19,10 +19,24 @@ A modern Next.js dashboard for managing and monitoring FuelEU Maritime complianc
 - Target reference line with compliance indicators
 - Detailed comparison table with compliance status
 
-### 🏦 Banking & Pooling
-- Manage compliance balance banking
-- Pool management for multiple ships
-- Track banked and applied balances
+### 🏦 Banking (Article 20)
+- **Modern Card Layouts**: Clean, organized information hierarchy
+- **CB Summary Cards**: Visual display of Current CB, Available Banked, and Activity
+- **Status Icons**: TrendingUp/Down icons for surplus/deficit visualization
+- **Dual Action Forms**: Separate, well-designed forms for Banking and Applying surplus
+- **Banking History**: Comprehensive transaction log with type badges
+- **Smart Warnings**: Context-aware validation messages with icons
+- **Dark Mode**: Fully theme-aware with proper color contrasts
+
+### 🤝 Pooling (Article 21)
+- **Enhanced Member Selection**: Interactive checkboxes with visual feedback
+- **Year Selection Card**: Clean card-based year input
+- **Member CB Display**: Detailed table showing individual balances before pooling
+- **Status Badges**: Color-coded status indicators (Surplus/Deficit/Neutral)
+- **Pool Validation**: Real-time validation with helpful error messages
+- **Success Display**: Green-themed success card showing pool results
+- **Member Shares**: Clear table showing CB distribution after pooling
+- **Icon Integration**: Ship, Users, and CheckCircle icons for better UX
 
 ## Tech Stack
 

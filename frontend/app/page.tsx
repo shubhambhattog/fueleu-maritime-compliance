@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { siteConfig } from "@/config/site";
 
 export default function Home() {
   return (
@@ -9,12 +11,20 @@ export default function Home() {
         <ThemeToggle />
       </div>
       <main className="flex w-full max-w-4xl flex-col gap-8 p-8">
-        <div className="flex flex-col gap-4 text-center">
+        <div className="flex flex-col gap-4 text-center items-center">
+          <Image 
+            src={siteConfig.company.logo}
+            alt={siteConfig.company.name}
+            width={siteConfig.logos.home.width}
+            height={siteConfig.logos.home.height}
+            className={siteConfig.logos.home.className}
+            priority
+          />
           <h1 className="text-5xl font-bold tracking-tight">
-            FuelEU Maritime Compliance
+            {siteConfig.pages.home.title}
           </h1>
           <p className="text-xl text-muted-foreground">
-            Manage routes, compare compliance balance, handle banking and pooling operations.
+            {siteConfig.pages.home.subtitle}
           </p>
         </div>
         
@@ -34,7 +44,7 @@ export default function Home() {
           </Link>
           
           <a
-            href="http://localhost:4000/routes"
+            href={siteConfig.links.apiDocs}
             target="_blank"
             rel="noopener noreferrer"
             className="cursor-pointer group"

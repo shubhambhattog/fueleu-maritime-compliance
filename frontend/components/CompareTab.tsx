@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ReferenceLine } from "recharts";
+import { Bar, Line, CartesianGrid, XAxis, YAxis, ReferenceLine, ComposedChart } from "recharts";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -110,14 +110,14 @@ export default function CompareTab() {
           </CardHeader>
           <CardContent>
             <ChartContainer config={chartConfig} className="h-[400px] w-full">
-              <BarChart 
+              <ComposedChart 
                 accessibilityLayer 
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
                 barGap={4}
-                barCategoryGap="20%"
+                barCategoryGap="15%"
               >
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <CartesianGrid vertical={false} strokeDasharray="3 3" className="opacity-30" />
                 <XAxis
                   dataKey="name"
                   tickLine={false}
@@ -126,22 +126,25 @@ export default function CompareTab() {
                   angle={-45}
                   textAnchor="end"
                   height={80}
+                  tick={{ fontSize: 12 }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
+                  tick={{ fontSize: 12 }}
                   label={{ value: 'gCO₂e/MJ', angle: -90, position: 'insideLeft' }}
                 />
                 <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dashed" />}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
+                  content={<ChartTooltipContent indicator="line" />}
                 />
                 <ChartLegend content={<ChartLegendContent />} />
                 <ReferenceLine 
                   y={TARGET_INTENSITY} 
-                  stroke="hsl(var(--destructive))" 
+                  stroke="#ef4444" 
                   strokeDasharray="3 3" 
+                  strokeWidth={2}
                   label={{ 
                     value: 'Target', 
                     position: 'insideTopRight',
@@ -150,23 +153,30 @@ export default function CompareTab() {
                     fontWeight: 500,
                   }}
                 />
+                {/* Bar charts */}
                 <Bar 
                   dataKey="baseline" 
                   fill="var(--color-baseline)" 
                   radius={[4, 4, 0, 0]}
-                  maxBarSize={60}
-                  stroke="hsl(var(--border))"
-                  strokeWidth={1}
+                  barSize={35}
+                  fillOpacity={0.8}
+                  activeBar={{ 
+                    fill: "var(--color-baseline)",
+                    fillOpacity: 1,
+                  }}
                 />
                 <Bar 
                   dataKey="comparison" 
                   fill="var(--color-comparison)" 
                   radius={[4, 4, 0, 0]}
-                  maxBarSize={60}
-                  stroke="hsl(var(--border))"
-                  strokeWidth={1}
+                  barSize={35}
+                  fillOpacity={0.8}
+                  activeBar={{ 
+                    fill: "var(--color-comparison)",
+                    fillOpacity: 1,
+                  }}
                 />
-              </BarChart>
+              </ComposedChart>
             </ChartContainer>
           </CardContent>
         </Card>
