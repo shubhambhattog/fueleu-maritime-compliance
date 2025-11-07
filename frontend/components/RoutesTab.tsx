@@ -235,31 +235,31 @@ export default function RoutesTab() {
       <Table>
         <TableHeader>
           <tr className="bg-zinc-100 dark:bg-zinc-800">
-            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("routeId")}>
+            <TableHead className="group text-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("routeId")}>
               Route ID <SortIcon field="routeId" />
             </TableHead>
-            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("shipId")}>
+            <TableHead className="group text-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("shipId")}>
               Ship ID <SortIcon field="shipId" />
             </TableHead>
-            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("vesselType")}>
+            <TableHead className="group text-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("vesselType")}>
               Vessel Type <SortIcon field="vesselType" />
             </TableHead>
-            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("fuelType")}>
+            <TableHead className="group text-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("fuelType")}>
               Fuel Type <SortIcon field="fuelType" />
             </TableHead>
-            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("year")}>
+            <TableHead className="group text-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("year")}>
               Year <SortIcon field="year" />
             </TableHead>
-            <TableHead className="group text-right cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("ghgIntensity")}>
+            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("ghgIntensity")}>
               GHG Intensity<br/>(gCO₂e/MJ) <SortIcon field="ghgIntensity" />
             </TableHead>
-            <TableHead className="group text-right cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("fuelConsumption")}>
+            <TableHead className="group  cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("fuelConsumption")}>
               Fuel (t) <SortIcon field="fuelConsumption" />
             </TableHead>
-            <TableHead className="group text-right cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("distance")}>
+            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("distance")}>
               Distance (km) <SortIcon field="distance" />
             </TableHead>
-            <TableHead className="group text-right cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("totalEmissions")}>
+            <TableHead className="group cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("totalEmissions")}>
               Emissions (t) <SortIcon field="totalEmissions" />
             </TableHead>
             <TableHead className="text-center">Baseline</TableHead>
@@ -269,11 +269,11 @@ export default function RoutesTab() {
         <TableBody>
           {sortedRoutes.map((route) => (
             <TableRow key={route.routeId} className="hover:bg-zinc-50 dark:hover:bg-zinc-900">
-              <TableCell className="text-sm text-zinc-900 dark:text-zinc-50">{route.routeId}</TableCell>
-              <TableCell className="text-sm text-zinc-900 dark:text-zinc-50">{route.shipId}</TableCell>
-              <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">{route.vesselType}</TableCell>
-              <TableCell className="text-sm text-zinc-600 dark:text-zinc-400">{route.fuelType}</TableCell>
-              <TableCell className="text-sm text-zinc-900 dark:text-zinc-50">
+              <TableCell className="text-sm text-center text-zinc-900 dark:text-zinc-50">{route.routeId}</TableCell>
+              <TableCell className="text-sm text-center text-zinc-900 dark:text-zinc-50">{route.shipId}</TableCell>
+              <TableCell className="text-sm text-center text-zinc-600 dark:text-zinc-400">{route.vesselType}</TableCell>
+              <TableCell className="text-sm text-center text-zinc-600 dark:text-zinc-400">{route.fuelType}</TableCell>
+              <TableCell className="text-sm text-center text-zinc-900 dark:text-zinc-50">
                 <Badge 
                   variant="outline" 
                   className={route.year === 2024 ? "bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700" : "bg-green-50 dark:bg-green-950 border-green-300 dark:border-green-700"}
@@ -281,10 +281,10 @@ export default function RoutesTab() {
                   {route.year}
                 </Badge>
               </TableCell>
-              <TableCell className="text-sm text-right text-zinc-900 dark:text-zinc-50">{route.ghgIntensity.toFixed(2)}</TableCell>
-              <TableCell className="text-sm text-right text-zinc-600 dark:text-zinc-400">{route.fuelConsumption.toLocaleString()}</TableCell>
-              <TableCell className="text-sm text-right text-zinc-600 dark:text-zinc-400">{route.distance?.toLocaleString() || "-"}</TableCell>
-              <TableCell className="text-sm text-right text-zinc-600 dark:text-zinc-400">{route.totalEmissions?.toLocaleString() || "-"}</TableCell>
+              <TableCell className="text-sm text-right tabular-nums text-zinc-900 dark:text-zinc-50">{route.ghgIntensity.toFixed(2)}</TableCell>
+              <TableCell className="text-sm text-right tabular-nums text-zinc-600 dark:text-zinc-400">{route.fuelConsumption.toLocaleString()}</TableCell>
+              <TableCell className="text-sm text-right tabular-nums text-zinc-600 dark:text-zinc-400">{route.distance?.toLocaleString() || "-"}</TableCell>
+              <TableCell className="text-sm text-right tabular-nums text-zinc-600 dark:text-zinc-400">{route.totalEmissions?.toLocaleString() || "-"}</TableCell>
               <TableCell className="text-center">
                 {route.isBaseline ? (
                   <Badge variant="secondary">Baseline {route.year}</Badge>

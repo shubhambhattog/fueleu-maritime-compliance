@@ -3,6 +3,8 @@ import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
+import { Server } from "lucide-react";
+import ServerActivityDashboard from "@/components/glowing";
 
 export default function Home() {
   return (
