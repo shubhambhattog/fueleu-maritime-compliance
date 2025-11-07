@@ -43,6 +43,13 @@ next-env.d.ts
 # ignore generated docs
 /docs/
 
+# Ignore root-level husky and dependencies (only frontend/backend should have these)
+/.husky
+/node_modules
+/pnpm-lock.yaml
+/package.json
+/pnpm-workspace.yaml
+
 # Ignore all markdown files except specific ones
 *.md
 !AGENT_WORKFLOW.md
