@@ -15,7 +15,8 @@ export default function Home() {
   useEffect(() => {
     const checkBackendHealth = async () => {
       try {
-        const response = await fetch('http://localhost:4000/health', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const response = await fetch(`${apiUrl}/health`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
