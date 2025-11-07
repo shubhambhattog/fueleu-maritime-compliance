@@ -42,3 +42,9 @@ next-env.d.ts
 
 # ignore generated docs
 /docs/
+
+# Ignore all markdown files except specific ones
+*.md
+!AGENT_WORKFLOW.md
+!README.md
+!REFLECTION.md
