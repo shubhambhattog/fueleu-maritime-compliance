@@ -212,18 +212,29 @@ npm test
    - Detailed comparison table with compliant/non-compliant badges
 
 3. **Banking Tab** 🏦
-   - Display current CB (Compliance Balance)
-   - Bank surplus action (store positive CB)
-   - Apply banked surplus action (use stored CB for deficits)
-   - Manual fetch with Ship ID and Year inputs
-   - Disable actions if no surplus available
+   - **Searchable Dropdowns**: Ship ID and Year selection with search/filter capability (300px width)
+   - **Smart Filtering**: Only shows ships with data for selected year (and vice versa)
+   - **Reset Button**: Quick reset icon button to clear selections and start over
+   - **KPI Cards**: Current CB, Available Banked Surplus, and Banking Activity summary
+   - **Bank Surplus**: Store positive CB with input validation and visual feedback
+   - **Apply Banked**: Use stored CB for deficits with smart warnings
+   - **Banking History**: Complete transaction log with date, type, and amounts
+   - **Compact Inputs**: 300px width for all inputs and action buttons
+   - **Manual Fetch**: Explicit "Fetch Data" button prevents auto-loading
 
 4. **Pooling Tab** 🤝
-   - Display adjusted CB per ship
-   - Create pool with multiple member selection
-   - Greedy allocation algorithm for deficit coverage
-   - Pool sum validation (must be ≥ 0)
-   - Real-time CB calculation display
+   - **Searchable Year Dropdown**: 300px dropdown with search/filter (shows only available years)
+   - **Dynamic Ship Filtering**: Only displays ships with routes for selected year
+   - **Interactive Selection**: Checkbox-based multi-select with visual highlighting
+   - **Real-time Validation**: Pool sum calculation with compliance indicators
+   - **Before/After Display**: Clear comparison tables showing CB changes
+   - **Pool Rules Enforcement**: 
+     - Minimum 2 members required
+     - Pool sum must be ≥ 0 (no negative pools)
+     - Deficit ships can't exit worse
+     - Surplus ships can't exit negative
+   - **Success Feedback**: Green-themed result card with detailed member shares
+   - **Flicker-Free**: Optimized rendering prevents table flickering
 
 ---
 

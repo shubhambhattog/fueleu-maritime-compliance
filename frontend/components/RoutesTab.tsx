@@ -19,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { TableSkeleton } from "@/components/skeletons";
 
 type SortField = keyof RouteRecord | null;
 type SortDirection = "asc" | "desc";
@@ -134,9 +135,6 @@ export default function RoutesTab() {
     }
   };
 
-  if (loading) return <div className="text-center py-8">Loading routes...</div>;
-  if (error) return <div className="text-red-600 text-center py-8">Error: {error}</div>;
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -231,8 +229,19 @@ export default function RoutesTab() {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && <TableSkeleton rows={10} columns={11} />}
+
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-8 text-red-500">
+          Error: {error}
+        </div>
+      )}
+
       {/* Table */}
-      <Table>
+      {!loading && !error && (
+        <Table>
         <TableHeader>
           <tr className="bg-zinc-100 dark:bg-zinc-800">
             <TableHead className="group text-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700" onClick={() => handleSort("routeId")}>
@@ -303,8 +312,9 @@ export default function RoutesTab() {
           ))}
         </TableBody>
       </Table>
+      )}
 
-      {routes.length === 0 && (
+      {!loading && !error && routes.length === 0 && (
         <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
           No routes found. Try adjusting filters.
         </div>

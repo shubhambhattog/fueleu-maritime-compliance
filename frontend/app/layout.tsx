@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 // @ts-ignore: CSS module without type declarations
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SmoothScroll } from "@/components/smooth-scroll";
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { siteConfig } from "@/config/site";
+import { Toaster } from "sonner";
 
 
 export const metadata: Metadata = {
@@ -30,7 +32,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <SmoothScroll />
           {children}
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
       </body>
     </html>

@@ -20,23 +20,37 @@ A modern Next.js dashboard for managing and monitoring FuelEU Maritime complianc
 - Detailed comparison table with compliance status
 
 ### 🏦 Banking (Article 20)
-- **Modern Card Layouts**: Clean, organized information hierarchy
-- **CB Summary Cards**: Visual display of Current CB, Available Banked, and Activity
+- **Searchable Dropdowns**: Command-based search/filter for Ship ID and Year (300px width)
+- **Smart Filtering**: Ships filtered by selected year, years filtered by selected ship
+- **Reset Button**: Icon-only reset button for quick selection clearing
+- **KPI Cards**: Visual display of Current CB, Available Banked Surplus, and Banking Activity
 - **Status Icons**: TrendingUp/Down icons for surplus/deficit visualization
 - **Dual Action Forms**: Separate, well-designed forms for Banking and Applying surplus
-- **Banking History**: Comprehensive transaction log with type badges
-- **Smart Warnings**: Context-aware validation messages with icons
+- **Compact Inputs**: All inputs and buttons standardized to 300px width
+- **Manual Fetch**: Explicit "Fetch Data" button with validation
+- **Banking History**: Comprehensive transaction log with type badges and timestamps
+- **Smart Warnings**: Context-aware validation messages with emoji icons
 - **Dark Mode**: Fully theme-aware with proper color contrasts
+- **Toast Notifications**: Sonner toasts for all actions (success/error)
 
 ### 🤝 Pooling (Article 21)
-- **Enhanced Member Selection**: Interactive checkboxes with visual feedback
-- **Year Selection Card**: Clean card-based year input
+- **Searchable Year Dropdown**: 300px dropdown with Command search component
+- **Dynamic Ship Filtering**: Only shows ships with routes for selected year
+- **Enhanced Member Selection**: Interactive checkboxes with visual row highlighting
+- **Year Selection Card**: Clean card-based year input with calendar icon
 - **Member CB Display**: Detailed table showing individual balances before pooling
-- **Status Badges**: Color-coded status indicators (Surplus/Deficit/Neutral)
-- **Pool Validation**: Real-time validation with helpful error messages
+- **Status Badges**: Color-coded status indicators (Surplus/Deficit/Neutral) with icons
+- **Pool Validation**: Real-time sum calculation with compliance indicators
+- **Pool Rules Enforced**:
+  - Minimum 2 members required
+  - Pool sum must be ≥ 0 (no negative pools)
+  - Fair distribution ensures no member exits worse
 - **Success Display**: Green-themed success card showing pool results
-- **Member Shares**: Clear table showing CB distribution after pooling
-- **Icon Integration**: Ship, Users, and CheckCircle icons for better UX
+- **Before/After Comparison**: Clear tables showing CB changes for each member
+- **Pool Summary**: Highlighted pool total with validation badge
+- **Icon Integration**: Ship, Users, CheckCircle, and trend icons for better UX
+- **Toast Notifications**: Success/error feedback using Sonner
+- **Flicker-Free Rendering**: Optimized useEffect prevents unnecessary re-renders
 
 ## Tech Stack
 

@@ -1,12 +1,41 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/config/site";
-import { Server } from "lucide-react";
-import ServerActivityDashboard from "@/components/glowing";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 export default function Home() {
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/health', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (response.ok) {
+          setBackendStatus('online');
+        } else {
+          setBackendStatus('offline');
+        }
+      } catch (error) {
+        setBackendStatus('offline');
+      }
+    };
+
+    checkBackendHealth();
+    // Check every 30 seconds
+    const interval = setInterval(checkBackendHealth, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="absolute top-4 right-4">
@@ -57,8 +86,26 @@ export default function Home() {
                   API Docs
                   <span className="transition-transform group-hover:translate-x-1">→</span>
                 </CardTitle>
-                <CardDescription>
-                  Test backend endpoints directly (backend must be running)
+                <CardDescription className="flex items-center gap-2">
+                  <span>Test backend endpoints directly</span>
+                  {backendStatus === 'checking' && (
+                    <Badge variant="outline" className="gap-1">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Checking...
+                    </Badge>
+                  )}
+                  {backendStatus === 'online' && (
+                    <Badge variant="default" className="gap-1 bg-green-600 hover:bg-green-700">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Backend Online
+                    </Badge>
+                  )}
+                  {backendStatus === 'offline' && (
+                    <Badge variant="destructive" className="gap-1">
+                      <XCircle className="h-3 w-3" />
+                      Backend Offline
+                    </Badge>
+                  )}
                 </CardDescription>
               </CardHeader>
             </Card>

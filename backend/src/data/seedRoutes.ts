@@ -1,4 +1,18 @@
-import { RouteRecord } from "../core/computeCB";
+/**
+ * Seeded route data for in-memory repository
+ */
+export type RouteRecord = {
+  routeId: string;
+  shipId: string;
+  year: number;
+  vesselType: string;
+  fuelType: string;
+  ghgIntensity: number; // gCO2e/MJ
+  fuelConsumption: number; // tons
+  distance?: number;
+  totalEmissions?: number;
+  isBaseline?: boolean;
+};
 
 export const seededRoutes: RouteRecord[] = [
   {

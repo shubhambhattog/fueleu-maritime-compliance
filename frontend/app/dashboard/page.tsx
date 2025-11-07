@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import RoutesTab from "@/components/RoutesTab";
 import CompareTab from "@/components/CompareTab";
 import BankingTab from "@/components/BankingTab";
@@ -15,6 +16,12 @@ import {
 import { Card } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { siteConfig } from "@/config/site";
+import {
+  RoutesTabSkeleton,
+  CompareTabSkeleton,
+  BankingTabSkeleton,
+  PoolingTabSkeleton,
+} from "@/components/skeletons";
 
 type Tab = "routes" | "compare" | "banking" | "pooling";
 
@@ -25,7 +32,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity">
             <Image 
               src={siteConfig.company.logo}
               alt={siteConfig.company.name}
@@ -36,7 +43,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold">
               {siteConfig.pages.dashboard.title}
             </h1>
-          </div>
+          </Link>
           <ThemeToggle />
         </div>
       </header>
@@ -52,16 +59,24 @@ export default function DashboardPage() {
 
           <Card className="bg-white dark:bg-zinc-950 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6">
             <TabsContent value="routes">
-              <RoutesTab />
+              <Suspense fallback={<RoutesTabSkeleton />}>
+                <RoutesTab />
+              </Suspense>
             </TabsContent>
             <TabsContent value="compare">
-              <CompareTab />
+              <Suspense fallback={<CompareTabSkeleton />}>
+                <CompareTab />
+              </Suspense>
             </TabsContent>
             <TabsContent value="banking">
-              <BankingTab />
+              <Suspense fallback={<BankingTabSkeleton />}>
+                <BankingTab />
+              </Suspense>
             </TabsContent>
             <TabsContent value="pooling">
-              <PoolingTab />
+              <Suspense fallback={<PoolingTabSkeleton />}>
+                <PoolingTab />
+              </Suspense>
             </TabsContent>
           </Card>
         </Tabs>

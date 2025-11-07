@@ -15,6 +15,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
+import { TableSkeleton, ChartSkeleton } from "@/components/skeletons";
 
 type Comparison = {
   baseline: any;
@@ -72,9 +73,6 @@ export default function CompareTab() {
     },
   } satisfies ChartConfig;
 
-  if (loading) return <div className="text-center py-8">Loading comparison data...</div>;
-  if (error) return <div className="text-red-600 text-center py-8">Error: {error}</div>;
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -99,8 +97,23 @@ export default function CompareTab() {
         </p>
       </Card>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="space-y-6">
+          <ChartSkeleton />
+          <TableSkeleton rows={5} columns={7} />
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="text-center py-8 text-red-500">
+          Error: {error}
+        </div>
+      )}
+
       {/* Chart */}
-      {chartData.length > 0 && (
+      {!loading && !error && chartData.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>GHG Intensity Comparison</CardTitle>
@@ -183,7 +196,8 @@ export default function CompareTab() {
       )}
 
       {/* Table */}
-      <Table>
+      {!loading && !error && (
+        <Table>
         <TableHeader>
           <tr className="bg-zinc-100 dark:bg-zinc-800">
             <TableHead>Route ID</TableHead>
@@ -219,8 +233,9 @@ export default function CompareTab() {
           ))}
         </TableBody>
       </Table>
+      )}
 
-      {comparisons.length === 0 && (
+      {!loading && !error && comparisons.length === 0 && (
         <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
           No comparison data found. Make sure a baseline is set in the Routes tab.
         </div>

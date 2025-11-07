@@ -30,37 +30,52 @@ All 4 dashboard tabs have been fully implemented for the FuelEU Maritime complia
 - **Dependencies:** recharts@^2.10.0 (added to package.json)
 
 ### 3. **Banking Tab** ✅
-- **Status:** Fully implemented
+- **Status:** Fully implemented with enhanced UX
 - **Features:**
-  - Ship ID and year selection
-  - CB Summary KPIs:
-    - Current CB (tonnes/grams)
-    - Available Banked (tonnes/grams)
-    - Status indicator (✅ Surplus / ❌ Deficit / ⚖️ Neutral)
+  - **Searchable Dropdowns:** Ship ID and Year selection with Command component (300px width, search/filter)
+  - **Smart Filtering:** Ships filtered by selected year, years filtered by selected ship
+  - **Reset Button:** Icon-only button to clear selections and start fresh
+  - **CB Summary KPIs:**
+    - Current CB (tonnes/grams) with trend icons
+    - Available Banked (tonnes/grams) with wallet icon
+    - Banking Activity count
+    - Status badges (✅ Surplus / ❌ Deficit / ⚖️ Neutral)
   - **Bank Surplus Form:**
-    - Amount input (tonnes)
-    - Bank button (disabled if CB ≤ 0)
-    - Validation message
+    - Amount input (tonnes, 300px width)
+    - Bank button (disabled if CB ≤ 0, 300px width)
+    - Validation message with emoji warnings
   - **Apply Banked Form:**
-    - Amount input (tonnes)
-    - Apply button (disabled if no banked available)
+    - Amount input (tonnes, 300px width)
+    - Apply button (disabled if no banked available, 300px width)
     - Validation message
-  - Banking History table with columns: Date, Type (📥 Bank / 📤 Apply), Amount (tonnes), Amount (grams)
+  - **Banking History:** Table with Date, Type (📥 Bank / 📤 Apply), Amount (tonnes), Amount (grams)
+  - **Manual Fetch:** Explicit "Fetch Data" button prevents auto-loading
+  - **Toast Notifications:** Sonner toasts for all actions (success/error)
 - **File:** `frontend/components/BankingTab.tsx`
 
 ### 4. **Pooling Tab** ✅
-- **Status:** Fully implemented
+- **Status:** Fully implemented with flicker-free rendering
 - **Features:**
-  - Year selection
-  - Member selection with checkboxes (S001-S005)
-  - Before Pool table showing adjusted CBs for each member:
-    - Ship ID, CB (tonnes), CB (grams), Status (✅ Surplus / ❌ Deficit / ⚖️ Neutral)
-  - Pool Sum footer with validation indicator (✅ Valid Pool / ❌ Invalid)
-  - Create Pool button (disabled if < 2 members or pool sum < 0)
-  - Validation warnings
-  - Pool Result display after successful creation:
-    - CB After Pool for each member
-    - Total Transferred amount
+  - **Searchable Year Dropdown:** 300px dropdown with Command search component
+  - **Dynamic Ship Filtering:** Only shows ships with routes for selected year
+  - **Enhanced Member Selection:** Interactive checkboxes with visual row highlighting
+  - **Before Pool Table:** Shows adjusted CBs for each member
+    - Ship ID, Vessel Type, Fuel Type, CB (tonnes), CB (grams), Status badges
+    - Select All checkbox functionality
+  - **Pool Sum Footer:** Real-time calculation with validation indicator (✅ Valid Pool / ❌ Invalid)
+  - **Pool Rules Enforced:**
+    - Minimum 2 members required
+    - Pool sum must be ≥ 0 (no negative pools)
+    - Fair distribution ensures no member exits worse
+  - **Create Pool Button:** Disabled if rules not met
+  - **Validation Warnings:** Clear error messages with emoji icons
+  - **Pool Result Display:**
+    - Green success card with CheckCircle icon
+    - "Member Balances After Pooling" table
+    - CB After Pool for each member (tonnes/grams)
+    - Pool Sum (After) highlighted in green box
+  - **Toast Notifications:** Success feedback using Sonner
+  - **Flicker-Free:** Optimized useEffect with lastFetchedYear state prevents table flickering
 - **File:** `frontend/components/PoolingTab.tsx`
 
 ---
@@ -372,4 +387,67 @@ git commit -m "feat(dashboard): add all 4 tabs for FuelEU Maritime compliance (r
 
 ---
 
-**Status:** ✅ All implementation complete! ✅ All bugs fixed! ✅ Database integrated! ✅ Theme system complete! Ready to run and test. 🚀
+## Latest UI/UX Improvements (November 2025)
+
+### Enhanced Banking Tab
+1. **Searchable Combobox Dropdowns** ✅
+   - Replaced basic Select with Command + Popover components
+   - Ship ID and Year dropdowns now support search/filter
+   - 300px fixed width for consistency
+
+2. **Smart Cross-Filtering** ✅
+   - Ships filtered by selected year (only show valid combinations)
+   - Years filtered by selected ship (only show valid combinations)
+   - Dynamic data fetching from routes API
+
+3. **Reset Functionality** ✅
+   - Icon-only reset button (RotateCcw icon)
+   - Clears both ship and year selections
+   - Toast notification on reset
+   - Prevents selection lock-in issues
+
+4. **Consistent Sizing** ✅
+   - All dropdowns: 300px width
+   - All input fields: 300px width
+   - All action buttons: 300px width
+   - "Fetch Data" and "Reset" buttons: auto width
+
+### Enhanced Pooling Tab
+1. **Searchable Year Dropdown** ✅
+   - Command + Popover for year selection
+   - Search/filter capability
+   - 300px fixed width
+
+2. **Dynamic Ship Filtering** ✅
+   - Only displays ships with routes for selected year
+   - Computed from `allRoutes` filtered by year
+   - Auto-updates when year changes
+
+3. **Flicker-Free Rendering** ✅
+   - Fixed infinite re-render issue
+   - Added `lastFetchedYear` state to track fetches
+   - Removed `availableShips` from useEffect dependencies
+   - Smooth, stable table rendering
+
+### Component Improvements
+1. **Toast Notifications** ✅
+   - All actions use Sonner toasts instead of browser alerts
+   - Success toasts with descriptive messages
+   - Error toasts with helpful details
+   - Positioned at top-right with rich colors
+
+2. **Icon Integration** ✅
+   - Ship, CalendarIcon for input labels
+   - RotateCcw for reset button
+   - ChevronsUpDown for dropdown triggers
+   - Check marks for selected items
+
+3. **Accessibility** ✅
+   - ARIA labels on combobox buttons
+   - Keyboard navigation in dropdowns
+   - Clear placeholder text
+   - Empty state messages
+
+---
+
+**Status:** ✅ All implementation complete! ✅ All bugs fixed! ✅ Database integrated! ✅ Theme system complete! ✅ Latest UI/UX improvements applied! Ready to run and test. 🚀

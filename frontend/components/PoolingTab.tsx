@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Ship, Users, TrendingUp, TrendingDown, Minus, CheckCircle2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Ship, Users, TrendingUp, TrendingDown, Minus, CheckCircle2, CalendarIcon, ChevronsUpDown, Check } from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { TableSkeleton } from "@/components/skeletons";
 
 interface MemberCB {
   shipId: string;
@@ -19,12 +24,44 @@ interface MemberCB {
 
 export default function PoolingTab() {
   const [year, setYear] = useState(2024);
-  const [availableShips] = useState(["S001", "S002", "S003", "S004", "S005"]);
+  const [allRoutes, setAllRoutes] = useState<any[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [memberCBs, setMemberCBs] = useState<MemberCB[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [poolResult, setPoolResult] = useState<any>(null);
+  const [yearOpen, setYearOpen] = useState(false);
+  const [shipOpen, setShipOpen] = useState(false);
+  const [currentShipInput, setCurrentShipInput] = useState("");
+  const [lastFetchedYear, setLastFetchedYear] = useState<number | null>(null);
+
+  // Get available years from all routes
+  const availableYears = [...new Set(allRoutes.map(r => r.year))].sort((a, b) => b - a);
+  
+  // Get ships filtered by selected year
+  const availableShips = [...new Set(allRoutes.filter(r => r.year === year).map(r => r.shipId))].sort();
+
+  // Fetch all routes from routes
+  useEffect(() => {
+    const fetchAvailableOptions = async () => {
+      try {
+        const routes = await api.getRoutes();
+        setAllRoutes(routes);
+        
+        // Set default year if not already set
+        if (routes.length > 0 && !year) {
+          const years = [...new Set(routes.map(r => r.year))].sort((a, b) => b - a);
+          setYear(years[0]);
+        }
+      } catch (err: any) {
+        toast.error("Failed to fetch available options", {
+          description: err.message,
+        });
+      }
+    };
+    
+    fetchAvailableOptions();
+  }, []);
 
   const toggleMember = (shipId: string) => {
     if (selectedMembers.includes(shipId)) {
@@ -39,17 +76,31 @@ export default function PoolingTab() {
     setError(null);
     try {
       // Fetch CB data for all available ships to show in the selection table
-      const results = await Promise.all(
+      // Handle errors gracefully for ships without routes
+      const results = await Promise.allSettled(
         availableShips.map(shipId => api.getAdjustedCB(shipId, year))
       );
       
-      const cbs: MemberCB[] = results.map((res, idx) => ({
-        shipId: availableShips[idx],
-        cb_g: res.adjusted_g ?? 0,
-        cb_t: (res.adjusted_g ?? 0) / 1_000_000,
-        vesselType: 'Container', // In production, fetch from ship data
-        fuelType: 'LNG', // In production, fetch from ship data
-      }));
+      const cbs: MemberCB[] = results.map((result, idx) => {
+        if (result.status === 'fulfilled') {
+          return {
+            shipId: availableShips[idx],
+            cb_g: result.value.adjusted_g ?? 0,
+            cb_t: (result.value.adjusted_g ?? 0) / 1_000_000,
+            vesselType: 'Container', // In production, fetch from ship data
+            fuelType: 'LNG', // In production, fetch from ship data
+          };
+        } else {
+          // Ship has no routes or CB data - default to 0
+          return {
+            shipId: availableShips[idx],
+            cb_g: 0,
+            cb_t: 0,
+            vesselType: 'Unknown',
+            fuelType: 'N/A',
+          };
+        }
+      });
       
       setMemberCBs(cbs);
     } catch (err: any) {
@@ -59,9 +110,16 @@ export default function PoolingTab() {
     }
   };
 
+  // Only fetch when year changes, not when availableShips changes
   useEffect(() => {
-    fetchMemberCBs();
-  }, [year]);
+    if (year && year !== lastFetchedYear && allRoutes.length > 0) {
+      const ships = [...new Set(allRoutes.filter(r => r.year === year).map(r => r.shipId))].sort();
+      if (ships.length > 0) {
+        setLastFetchedYear(year);
+        fetchMemberCBs();
+      }
+    }
+  }, [year, allRoutes]);
 
   const poolSum = selectedMembers.reduce((sum, shipId) => {
     const member = memberCBs.find(m => m.shipId === shipId);
@@ -77,12 +135,17 @@ export default function PoolingTab() {
     try {
       const result = await api.createPool(year, selectedMembers);
       setPoolResult(result);
-      alert("Pool created successfully!");
+      toast.success("Pool created successfully!", {
+        description: `Created pool for ${selectedMembers.length} ships in year ${year}`,
+      });
       // Refresh CBs to see post-pool state
       await fetchMemberCBs();
     } catch (err: any) {
-      setError(err.message);
-      alert(`Error: ${err.message}`);
+      const errorMessage = err.message || "Failed to create pool";
+      setError(errorMessage);
+      toast.error("Failed to create pool", {
+        description: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -98,19 +161,57 @@ export default function PoolingTab() {
       {/* Year Selection */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Select Pool Year</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <CalendarIcon className="h-5 w-5" />
+            Select Pool Year
+          </CardTitle>
           <CardDescription>Choose the year to create a compliance balance pool</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 items-end">
             <div className="flex-1 max-w-xs">
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Year</label>
-              <Input 
-                type="number" 
-                value={year} 
-                onChange={(e: any) => setYear(Number(e.target.value))} 
-                placeholder="e.g., 2024" 
-              />
+              <Popover open={yearOpen} onOpenChange={setYearOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={yearOpen}
+                    className="w-full justify-between"
+                  >
+                    {year ? year : "Select year..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search year..." />
+                    <CommandList>
+                      <CommandEmpty>No year found.</CommandEmpty>
+                      <CommandGroup>
+                        {availableYears.map((y) => (
+                          <CommandItem
+                            key={y}
+                            value={String(y)}
+                            onSelect={() => {
+                              setYear(y);
+                              setYearOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                year === y ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {y}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </CardContent>
@@ -126,8 +227,13 @@ export default function PoolingTab() {
           <CardDescription>Choose ships to include in the pooling arrangement (minimum 2 required)</CardDescription>
         </CardHeader>
         <CardContent>
-          {loading && <div className="text-center py-8 text-zinc-500">Loading ship data...</div>}
-          {!loading && (
+          {loading && <TableSkeleton rows={8} columns={7} />}
+          {!loading && error && (
+            <div className="text-center py-8 text-red-500">
+              Error loading ship data: {error}
+            </div>
+          )}
+          {!loading && !error && (
             <>
               <Table>
                 <TableHeader>

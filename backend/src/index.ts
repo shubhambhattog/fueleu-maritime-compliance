@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { createContainer } from "./infrastructure/config/container";
+import { createRouter } from "./infrastructure/http/express/routes/hexagonalRouter";
 
 dotenv.config();
 
@@ -14,33 +16,28 @@ app.use(cors({
 
 app.use(express.json());
 
-// Use database-backed routes if DATABASE_URL is configured, otherwise use in-memory
-const useDatabase = !!process.env.DATABASE_URL;
-console.log(`🔌 Using ${useDatabase ? 'DATABASE (Neon Postgres)' : 'IN-MEMORY'} storage`);
+// ========== HEXAGONAL ARCHITECTURE ==========
+// Create dependency injection container
+const container = createContainer();
 
-if (useDatabase) {
-  import("./routes/routes-db").then(module => {
-    app.use("/", module.default);
-    console.log("✅ Database routes loaded");
-  }).catch(err => {
-    console.error("❌ Failed to load database routes:", err);
-    console.log("🔄 Falling back to in-memory routes");
-    import("./routes/routes").then(module => {
-      app.use("/", module.default);
-    });
-  });
-} else {
-  import("./routes/routes").then(module => {
-    app.use("/", module.default);
-    console.log("✅ In-memory routes loaded");
-  });
-}
+// Create Express router with injected services
+const router = createRouter(
+  container.routeService,
+  container.complianceService,
+  container.bankingService,
+  container.poolingService
+);
+
+// Mount router
+app.use("/", router);
+
+console.log("✅ Hexagonal Architecture initialized");
+console.log("✅ HTTP routes mounted");
 
 const port = process.env.PORT || 4000;
 
-// Delay server start to allow routes to load
-setTimeout(() => {
-  app.listen(port, () => {
-    console.log(`🚀 Backend server listening on http://localhost:${port}`);
-  });
-}, 1000);
+app.listen(port, () => {
+  console.log(`🚀 Backend server listening on http://localhost:${port}`);
+  console.log(`📊 API available at http://localhost:${port}/routes`);
+});
+
