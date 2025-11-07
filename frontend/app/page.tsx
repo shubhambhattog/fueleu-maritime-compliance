@@ -8,6 +8,9 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/config/site";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default function Home() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
