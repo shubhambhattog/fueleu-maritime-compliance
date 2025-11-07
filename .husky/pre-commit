@@ -1,0 +1,3 @@
+# Run frontend checks
+cd frontend
+npx lint-staged
