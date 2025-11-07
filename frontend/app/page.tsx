@@ -8,37 +8,48 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge";
 import { siteConfig } from "@/config/site";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import dotenv from "dotenv";
 
-dotenv.config();
+type BackendStatus = "checking" | "online" | "offline";
 
 export default function Home() {
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [backendStatus, setBackendStatus] = useState<BackendStatus>("checking");
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkBackendHealth = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-        const response = await fetch(`${apiUrl}/health`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch(`${siteConfig.api.baseUrl}/health`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
-        
-        if (response.ok) {
-          setBackendStatus('online');
-        } else {
-          setBackendStatus('offline');
+
+        if (isMounted) {
+          if (response.ok) {
+            setBackendStatus("online");
+          } else {
+            setBackendStatus("offline");
+          }
         }
       } catch (error) {
-        setBackendStatus('offline');
+        if (isMounted) {
+          setBackendStatus("offline");
+        }
       }
     };
 
+    // Check immediately
     checkBackendHealth();
+
     // Check every 30 seconds
     const interval = setInterval(checkBackendHealth, 30000);
-    
-    return () => clearInterval(interval);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">

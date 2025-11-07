@@ -1,5 +1,7 @@
+import { siteConfig } from "@/config/site";
+
 // API client for backend
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_URL = siteConfig.api.baseUrl;
 
 export type RouteRecord = {
   routeId: string;

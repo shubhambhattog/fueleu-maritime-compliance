@@ -6,6 +6,9 @@ export const siteConfig = {
     logo: "/VARUNA-MARINE-LOGO.png",
     favicon: "/VARUNA-MARINE-LOGO.ico",
   },
+  api: {
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000",
+  },
   pages: {
     home: {
       title: "FuelEU Maritime Compliance",
@@ -28,6 +31,8 @@ export const siteConfig = {
     },
   },
   links: {
-    apiDocs: "http://localhost:4000/routes",
+    apiDocs: process.env.NEXT_PUBLIC_API_URL 
+      ? `${process.env.NEXT_PUBLIC_API_URL}/routes`
+      : "http://localhost:4000/routes",
   },
 } as const;
