@@ -1,5 +1,14 @@
 import { api } from '../api';
 
+// Mock siteConfig to use localhost for tests
+jest.mock('@/config/site', () => ({
+  siteConfig: {
+    api: {
+      baseUrl: 'http://localhost:4000'
+    }
+  }
+}));
+
 // Mock fetch globally
 global.fetch = jest.fn();
 

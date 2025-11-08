@@ -79,7 +79,7 @@ See **backend/DATABASE_SETUP.md** for detailed setup instructions.
 ## 🚀 Setup & Installation
 
 ### Prerequisites
-- Node.js 18+ (LTS recommended)
+- Node.js 20+ (LTS recommended)
 - npm or pnpm
 - (Optional) Neon Postgres account for production DB
 
@@ -104,9 +104,16 @@ copy .env.example .env
 4. Edit `.env` and set:
    - `PORT=4000` (default)
    - `FRONTEND_URL=http://localhost:3000`
-   - (Optional) `DATABASE_URL` for Neon Postgres
+   - `DATABASE_URL` for Neon Postgres (required)
+   - `NODE_ENV=development`
 
-5. Start dev server:
+5. Setup database:
+```cmd
+npm run db:push
+npm run db:seed
+```
+
+6. Start dev server:
 ```cmd
 npm run dev
 ```
@@ -122,24 +129,34 @@ cd frontend
 
 2. Install dependencies:
 ```cmd
-npm install
+pnpm install
 ```
-*(or `pnpm install`)*
+*(pnpm recommended for this project)*
 
-3. Copy environment template:
+3. The API URL is configured in `config/site.ts`:
+   - Development: `http://localhost:4000` (default)
+   - Production: Set `NEXT_PUBLIC_API_URL` environment variable in Vercel
+
+4. Start dev server:
 ```cmd
-copy .env.local.example .env.local
-```
-
-4. Edit `.env.local` and set:
-   - `NEXT_PUBLIC_API_URL=http://localhost:4000`
-
-5. Start dev server:
-```cmd
-npm run dev
+pnpm dev
 ```
 
 Frontend will run at **http://localhost:3000**
+
+### Quick Start (Both Services)
+
+```cmd
+# Terminal 1 - Backend
+cd backend
+npm install
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+pnpm install
+pnpm dev
+```
 
 ---
 
@@ -263,6 +280,70 @@ curl -X POST http://localhost:4000/pools \
   -H "Content-Type: application/json" \
   -d '{"year":2024,"members":["S001","S002","S003"]}'
 ```
+
+---
+
+## 🌐 Deployment
+
+### Live Application
+
+- **Frontend**: https://fueleu-maritime-compliance-fe.vercel.app
+- **Backend**: https://fueleu-maritime-compliance-be.vercel.app
+- **Database**: Neon PostgreSQL (serverless)
+
+### Deploy Your Own
+
+#### Frontend (Vercel)
+1. Push code to GitHub
+2. Import project in Vercel
+3. Set Root Directory: `frontend`
+4. Add environment variable:
+   - `NEXT_PUBLIC_API_URL` = your backend URL
+5. Deploy
+
+#### Backend (Vercel)
+1. Import backend folder in Vercel
+2. Set Root Directory: `backend`
+3. Add environment variables:
+   - `DATABASE_URL` = Neon connection string
+   - `FRONTEND_URL` = your frontend URL
+   - `NODE_ENV` = production
+   - `PORT` = 4000
+4. Deploy
+
+See `DEPLOYMENT.md` for detailed instructions.
+
+### Configuration
+
+The application uses a centralized configuration approach:
+- **API URL**: Configured in `frontend/config/site.ts`
+- **Environment Override**: Set `NEXT_PUBLIC_API_URL` to override default
+- **CORS**: Automatically configured for Vercel domains (`*.vercel.app`)
+- **Health Check**: Backend status indicator on home page
+
+---
+
+## 🎯 Latest Features
+
+### Backend Health Monitoring
+- Real-time backend status indicator on home page
+- Auto-refresh every 30 seconds
+- Visual badges (Checking/Online/Offline)
+- `/health` endpoint for status checks
+
+### Loading States
+- Skeleton loaders on all tabs during data fetching
+- Professional loading experience
+- Prevents layout shift
+
+### Logo Navigation
+- Clickable logo returns to home page
+- Consistent navigation pattern
+
+### Pre-commit Hooks
+- Husky integration for code quality
+- ESLint checks before commit
+- Prevents deployment failures
 
 ---
 

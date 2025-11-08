@@ -143,13 +143,30 @@ The Compare tab features professional charts:
 - Reference line for target GHG intensity
 - Interactive tooltips with formatted data
 
-## Environment Variables
+## Configuration
 
-Create a `.env.local` file (optional):
+### API URL Configuration
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
+The API URL is configured in `config/site.ts`:
+
+```typescript
+api: {
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000",
+}
 ```
+
+**Local Development:** Uses `http://localhost:4000` by default
+
+**Production (Vercel):** Set `NEXT_PUBLIC_API_URL` environment variable:
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.vercel.app
+```
+
+This centralized configuration provides:
+- ✅ Type safety with TypeScript
+- ✅ Single source of truth
+- ✅ Environment variable override support
+- ✅ Better developer experience
 
 ## Available Scripts
 
